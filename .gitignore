@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# sqlite database file
+*.db
+
 # Distribution / packaging
 .Python
 build/
@@ -105,3 +108,6 @@ venv.bak/
 
 #vscode
 .vscode/
+
+#idea
+.idea/
