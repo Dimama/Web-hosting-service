@@ -1,9 +1,11 @@
 from .app import db
 from enum import Enum
 
+
 class AccoutTypeEnum(Enum):
     free = 1
     premium = 2
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,6 +14,7 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User: {} with id: {}>'.format(self.username, self.id)
+
 
 class UserBills(db.Model):
     id = db.Column(db.Integer, primary_key=True)
