@@ -11,6 +11,13 @@ class Server(Resource):
         super(Server, self).__init__()
 
     def get(self, server_id=None):
+        """
+        Method to process get responses for server resources
+
+        :param server_id: id of server
+        :return: (response data in json, response status code)
+        """
+
         if server_id is None:
             args = self.reqparse.parse_args()
             return jsonify({"page": args['page'], "size": args['size']})
@@ -18,5 +25,3 @@ class Server(Resource):
             sc = ServerModel.get_server_by_id(server_id)
             print(sc)
             return jsonify({"server_id": server_id})
-
-
