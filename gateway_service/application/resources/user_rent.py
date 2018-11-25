@@ -19,7 +19,7 @@ class UserRent(Resource):
         # check user bills (code???)
         # check server available (code???)
         # update user bill
-        # update server_availble
+        # update server_availble+
         # create rent record and sent record to user (200)
         return jsonify({"id": user_id, "method": "post"})
 
