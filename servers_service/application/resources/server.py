@@ -1,5 +1,6 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, reqparse
 from flask import jsonify
+from application.models.models import ServerModel
 
 
 class Server(Resource):
@@ -14,5 +15,8 @@ class Server(Resource):
             args = self.reqparse.parse_args()
             return jsonify({"page": args['page'], "size": args['size']})
         else:
+            sc = ServerModel.get_server_by_id(server_id)
+            print(sc)
             return jsonify({"server_id": server_id})
+
 
