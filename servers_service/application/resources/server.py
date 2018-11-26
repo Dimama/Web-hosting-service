@@ -1,6 +1,6 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, url_for
 from application.models.models import ServerModel
-
+from flask import current_app, request
 
 class Server(Resource):
     def __init__(self):
@@ -18,16 +18,17 @@ class Server(Resource):
         :param server_id: id of server
         :return: (response data in json, response status code)
         """
-        # TODO: add logging here
+
+        current_app.logger.info("GET: {}".format(request.full_path))
 
         if server_id is None:
             args = self.reqparse.parse_args()
-
             page = args['page']
             per_page = args['size']
             objects = ServerModel.get_servers_with_pagination(page, per_page)
 
             if not objects:
+                current_app.logger.warn("Resource not found")
                 return {'message': 'servers not found'}, 404
             else:
                 return {'servers': [o.to_json() for o in objects]}, 200
@@ -35,6 +36,7 @@ class Server(Resource):
         else:
             res = ServerModel.get_full_server_info_by_id(server_id)
             if res is None:
+                current_app.logger.warn("Resource not found")
                 return {'message': 'server not found'}, 404
             else:
                 resp_body = res[0].to_json()

@@ -1,6 +1,7 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, current_app
 from application.servers_connector import ServersConnector
 from application.const import SERVERS_SERVICE_ADDRESS as addr
+from flask import request
 
 
 class Server(Resource):
@@ -23,7 +24,7 @@ class Server(Resource):
         :return: (response data in json, response status code)
         """
 
-        # TODO: add logging here
+        current_app.logger.info("GET: {}".format(request.full_path))
 
         connector = ServersConnector(addr)
         if server_id is None:
@@ -32,11 +33,10 @@ class Server(Resource):
             page, size = args['page'], args['size']
 
             status, body = connector.get_servers(page, size)
-            print("Response from service: ", body) # DEBUG
-
         else:
             # response to servers_service to get config by id
             status, body = connector.get_server_by_id(server_id)
-            print("Response from service: ", body)  # DEBUG
 
+        current_app.logger.debug("Response from servers: {}, {}".format(body,
+                                                                        status))
         return body, status

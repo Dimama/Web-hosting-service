@@ -1,9 +1,10 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from application.const import DB_URI
 from .database import db
 from flask_restful import Api
 from application.resources.server import Server
+import logging
+from logging.handlers import RotatingFileHandler
 
 
 def create_app():
@@ -19,4 +20,16 @@ def create_app():
     api = Api(app)
     api.add_resource(Server, '/server',
                      '/server/<int:server_id>')
+
+    handler = logging.handlers.RotatingFileHandler(
+        'servers.log',
+        maxBytes=1024*100,
+        backupCount=5)
+
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(filename)s: %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.addHandler(handler)
+
     return app
