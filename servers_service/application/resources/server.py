@@ -33,9 +33,10 @@ class Server(Resource):
                 return {'servers': [o.to_json() for o in objects]}, 200
 
         else:
-            s = ServerModel.get_server_by_id(server_id)
-
-            if s is None:
+            res = ServerModel.get_full_server_info_by_id(server_id)
+            if res is None:
                 return {'message': 'server not found'}, 404
             else:
-                return {'server': s.to_json()}, 200
+                resp_body = res[0].to_json()
+                resp_body.update(res[1].to_json())
+                return {'server info': resp_body}, 200

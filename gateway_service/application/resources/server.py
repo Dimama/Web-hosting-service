@@ -1,5 +1,4 @@
 from flask_restful import Resource, reqparse
-from flask import jsonify
 from application.servers_connector import ServersConnector
 from application.const import SERVERS_SERVICE_ADDRESS as addr
 
@@ -10,8 +9,10 @@ class Server(Resource):
     """
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('page', type=int, required=True, help='No pagination page')
-        self.reqparse.add_argument('size', type=int, choices=[1, 2, 3, 4, 5], default=5, help='Incorrect size per page')
+        self.reqparse.add_argument('page', type=int, required=True,
+                                   help='No pagination page')
+        self.reqparse.add_argument('size', type=int, choices=[1, 2, 3, 4, 5],
+                                   default=5, help='Incorrect size per page')
         super(Server, self).__init__()
 
     def get(self, server_id=None):

@@ -1,5 +1,5 @@
 from application import db
-import json
+
 
 class ServerModel(db.Model):
     """
@@ -37,6 +37,20 @@ class ServerModel(db.Model):
     def get_servers_with_pagination(page, per_page):
         return ServerModel.query.paginate(page, per_page, False).items
 
+    @staticmethod
+    def get_full_server_info_by_id(server_id):
+        """
+        Method to get full info about Server using join
+
+        :param server_id:
+        :return: (ServerModel, ServerInfoModel)
+        """
+
+        info = db.session.query(ServerModel, ServerInfoModel).\
+            join(ServerInfoModel).\
+            filter(ServerInfoModel.id == server_id)
+        return info.first()
+
     def __repr__(self):
         return '<{} Server configuration: {} {} Gb {} cpu {} Gb>'.format(self.id,
                                                                          self.os,
@@ -51,7 +65,11 @@ class ServerInfoModel(db.Model):
     """
 
     __tablename__ = 'servers_info'
+
     id = db.Column(db.Integer,  db.ForeignKey('servers.id'),
                    primary_key=True)
     price = db.Column(db.Float, nullable=False)
     count = db.Column(db.Integer, default=10)
+
+    def to_json(self):
+        return {'price': self.price, 'count': self.count}
