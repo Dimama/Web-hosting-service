@@ -1,5 +1,5 @@
 from application import db
-
+import json
 
 class ServerModel(db.Model):
     """
@@ -18,17 +18,24 @@ class ServerModel(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def to_json(self):
+        return {'id': self.id,
+                'OS': self.os,
+                'RAM': self.ram,
+                'CPU': self.cpu,
+                'Drive': self.drive_size}
+
     @staticmethod
     def get_all_servers():
         return ServerModel.query.all()
 
     @staticmethod
-    def get_server_by_id(id):
-        return ServerModel.query.get(id)
+    def get_server_by_id(server_id):
+        return ServerModel.query.get(server_id)
 
     @staticmethod
-    def get_servers_with_pagination(page, size):
-        pass
+    def get_servers_with_pagination(page, per_page):
+        return ServerModel.query.paginate(page, per_page, False).items
 
     def __repr__(self):
         return '<{} Server configuration: {} {} Gb {} cpu {} Gb>'.format(self.id,

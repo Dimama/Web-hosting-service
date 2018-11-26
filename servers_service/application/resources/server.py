@@ -1,13 +1,14 @@
 from flask_restful import Resource, reqparse
-from flask import jsonify
 from application.models.models import ServerModel
 
 
 class Server(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('page', type=int, required=True, help='No pagination page')
-        self.reqparse.add_argument('size', type=int, choices=[1, 2, 3, 4, 5], default=5, help='Incorrect size per page')
+        self.reqparse.add_argument('page', type=int, required=True,
+                                   help='No pagination page')
+        self.reqparse.add_argument('size', type=int, choices=[1, 2, 3, 4, 5],
+                                   default=5, help='Incorrect size per page')
         super(Server, self).__init__()
 
     def get(self, server_id=None):
@@ -17,11 +18,24 @@ class Server(Resource):
         :param server_id: id of server
         :return: (response data in json, response status code)
         """
+        # TODO: add logging here
 
         if server_id is None:
             args = self.reqparse.parse_args()
-            return jsonify({"page": args['page'], "size": args['size']})
+
+            page = args['page']
+            per_page = args['size']
+            objects = ServerModel.get_servers_with_pagination(page, per_page)
+
+            if not objects:
+                return {'message': 'servers not found'}, 404
+            else:
+                return {'servers': [o.to_json() for o in objects]}, 200
+
         else:
-            sc = ServerModel.get_server_by_id(server_id)
-            print(sc)
-            return jsonify({"server_id": server_id})
+            s = ServerModel.get_server_by_id(server_id)
+
+            if s is None:
+                return {'message': 'server not found'}, 404
+            else:
+                return {'server': s.to_json()}, 200
