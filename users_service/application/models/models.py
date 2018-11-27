@@ -1,4 +1,4 @@
-from .app import db
+from application import db
 from enum import Enum
 
 
