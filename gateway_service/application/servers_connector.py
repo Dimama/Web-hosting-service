@@ -1,4 +1,5 @@
 from .service_connector import ServiceConnector
+from flask_restful import current_app
 
 
 class ServersConnector(ServiceConnector):
@@ -27,3 +28,26 @@ class ServersConnector(ServiceConnector):
 
         url = "/server/{}".format(server_id)
         return self.send_get_request(url)
+
+    def get_server_available_count_and_price(self, server_id):
+        """
+        Method to get count of available servers with server_id and server price
+        note:  get full info about server but take only available count and price
+
+        :param server_id: id of server whose count need to get
+        :return: (response code, response data in json)
+        """
+
+        url = "/server/{}".format(server_id)
+
+        code, body = self.send_get_request(url)
+
+        current_app.logger.debug("Response from servers: {}, {}".format(body, code))
+
+        if code == 404:
+            return code, body
+        if body['server info']['count'] == 0:
+            return 422, {'message': 'no available servers'}
+
+        return code, {'count': body['server info']['count'],
+                      'price': body['server info']['price']}
