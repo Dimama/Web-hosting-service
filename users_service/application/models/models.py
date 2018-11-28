@@ -16,7 +16,9 @@ class UserModel(db.Model):
     account_type = db.Column(db.Enum(AccoutTypeEnum), default=AccoutTypeEnum.free)
 
     def to_json(self):
-        pass
+        return {'id': self.id,
+                'name': self.username,
+                'acc_type': self.account_type.name}
 
     @staticmethod
     def get_user_info_by_id(user_id):
@@ -41,7 +43,7 @@ class UserBillsModel(db.Model):
     __tablename__ = 'users_bills'
 
     def to_json(self):
-        pass
+        return {'money': self.money_count}
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

@@ -25,5 +25,6 @@ def setup_db():
 def clear_db():
     clear_users_db()
 
+
 if __name__ == '__main__':
     manager.run()

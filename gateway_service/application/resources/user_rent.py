@@ -20,7 +20,6 @@ class UserRent(Resource):
 
         super(UserRent, self).__init__()
 
-
     def get(self, user_id):
         # add pagination
         # 400 - bad request
@@ -36,10 +35,9 @@ class UserRent(Resource):
 
         current_app.logger.info('POST: {} with body {}'.format(request.full_path, request.get_json()))
 
-        # 400 - bad request (validate body data) +
+        # 400 - bad request (validate body data)
         args = self.post_parser.parse_args()
         server_id = args['server_id']
-
 
         # check server available
         s_conn = ServersConnector(serv_addr)
@@ -58,14 +56,15 @@ class UserRent(Resource):
 
         # compare price
         total_price = duration * price
-        user_bill_money = body['money_count']
+        user_bill_money = body['money']
 
         if total_price > user_bill_money:  # not enough money on bill
-            return 422, {'message': 'not enough money on bill'}
+            return {'message': 'not enough money on bill'}, 422
 
+        # TODO:
         # update user bill
         # update server_available
-        # create rent record and sent record to user (200)
+        # create rent record and send record to user (200)
 
         return jsonify({"id": user_id, "method": "post"})
 

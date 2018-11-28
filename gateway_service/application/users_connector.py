@@ -23,7 +23,7 @@ class UsersConnector(ServiceConnector):
 
         if code == 404:
             return code, body
-        if body['bill']['money'] == 0:  #
+        if body['user info']['money'] == 0:
             return 422, {'message': 'no money on bill'}
 
-        return code, {'money': body['bill']['money']}
+        return code, {'money': body['user info']['money']}
