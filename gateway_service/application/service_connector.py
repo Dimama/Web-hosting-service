@@ -41,3 +41,15 @@ class ServiceConnector(object):
 
         r = requests.delete(self.base_url + url)
         return r.status_code, r.json()
+
+    def send_put_request(self, url, body):
+        """
+        Send put request to url param
+
+        :param url: second part of destination url
+        :param body: request body in json
+        :return: (response code, response data in json)
+        """
+
+        r = requests.put(self.base_url + url, json=body)
+        return r.status_code, r.json()

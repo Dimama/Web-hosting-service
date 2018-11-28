@@ -42,9 +42,29 @@ class UserBillsModel(db.Model):
 
     __tablename__ = 'users_bills'
 
-    def to_json(self):
-        return {'money': self.money_count}
-
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     money_count = db.Column(db.Float, default=0.0)
+
+    def to_json(self):
+        return {'money': self.money_count}
+
+    @staticmethod
+    def decrease_user_bill(user_id, price):
+        """
+        Method to update(decrease) user bill
+
+        :param user_id:
+        :param price:
+        :return updated bill
+        """
+
+        db.session.query(UserBillsModel).filter(UserBillsModel.user_id == user_id).\
+            update({UserBillsModel.money_count: UserBillsModel.money_count - price})
+
+        db.session.commit()
+
+        cur_bill = db.session.query(UserBillsModel.money_count).\
+            filter(UserBillsModel.user_id == user_id).first()[0]
+
+        return cur_bill

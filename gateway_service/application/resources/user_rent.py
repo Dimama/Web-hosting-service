@@ -61,8 +61,12 @@ class UserRent(Resource):
         if total_price > user_bill_money:  # not enough money on bill
             return {'message': 'not enough money on bill'}, 422
 
-        # TODO:
         # update user bill
+        status, body = u_conn.decrease_user_bill(user_id, total_price)
+        if status == 400:
+            return body, status
+
+        # TODO:
         # update server_available
         # create rent record and send record to user (200)
 

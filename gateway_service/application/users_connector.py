@@ -15,7 +15,7 @@ class UsersConnector(ServiceConnector):
         :return: (response code, response data in json)
         """
 
-        url = "/user/{}".format(user_id)
+        url = '/user/{}'.format(user_id)
 
         code, body = self.send_get_request(url)
 
@@ -27,3 +27,23 @@ class UsersConnector(ServiceConnector):
             return 422, {'message': 'no money on bill'}
 
         return code, {'money': body['user info']['money']}
+
+    def decrease_user_bill(self, user_id, price):
+        """
+        Method to decrease user bill
+
+        :param user_id: id of user whose bill need to decrease
+        :param price: rent amount that need to deducted from user bill
+        :return: (response code, response data in json)
+        """
+
+        url = '/user/{}'.format(user_id)
+
+        code, body = self.send_put_request(url, {'price': price})
+
+        current_app.logger.debug("Response from users: {}, {}".format(body, code))
+
+        if code == 404 or code == 400:
+            return code, body
+
+        return code, {'message': 'user bill updated'}
