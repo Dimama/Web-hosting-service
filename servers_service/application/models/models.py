@@ -1,4 +1,5 @@
 from application import db
+from application.exceptions import NoServerException
 
 
 class ServerModel(db.Model):
@@ -73,3 +74,27 @@ class ServerInfoModel(db.Model):
 
     def to_json(self):
         return {'price': self.price, 'count': self.count}
+
+    @staticmethod
+    def update_server_available(server_id, delta):
+        """
+        Method to update ServerInfoModel.count on delta
+
+        :param server_id:
+        :param delta: value to update
+        :return: updated count
+        """
+
+        db.session.query(ServerInfoModel).filter(ServerInfoModel.id == server_id).\
+            update({ServerInfoModel.count: ServerInfoModel.count + delta})
+
+        db.session.commit()
+
+        try:
+            count = db.session.query(ServerInfoModel.count).\
+                filter(ServerInfoModel.id == server_id).first()[0]
+        except TypeError:
+            raise NoServerException("Server with id: {} not found".
+                                    format(server_id))
+        else:
+            return count

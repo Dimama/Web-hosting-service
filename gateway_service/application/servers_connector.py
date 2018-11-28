@@ -51,3 +51,25 @@ class ServersConnector(ServiceConnector):
 
         return code, {'count': body['server info']['count'],
                       'price': body['server info']['price']}
+
+    def change_server_available(self, server_id, decrease=True):
+        """
+        Method to change available count of server
+
+        :param server_id: id of server whose count need to change
+        :param decrease: True - decrease available, False - increase
+        :return: (response code, response data in json)
+        """
+
+        url = '/server/{}'.format(server_id)
+
+        delta = -1 if decrease else 1
+        code, body = self.send_put_request(url, {'delta': delta})
+
+        current_app.logger.debug("Response from servers: {}, {}".format(body, code))
+
+        if code == 404 or code == 400:
+            return code, body
+
+        return code, {'message': 'server available count updated'}
+

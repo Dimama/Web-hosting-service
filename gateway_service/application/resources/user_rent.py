@@ -33,7 +33,8 @@ class UserRent(Resource):
 
     def post(self, user_id):
 
-        current_app.logger.info('POST: {} with body {}'.format(request.full_path, request.get_json()))
+        current_app.logger.info('POST: {} with body {}'.format(request.full_path,
+                                                               request.get_json()))
 
         # 400 - bad request (validate body data)
         args = self.post_parser.parse_args()
@@ -66,9 +67,12 @@ class UserRent(Resource):
         if status == 400:
             return body, status
 
-        # TODO:
-        # update server_available
-        # create rent record and send record to user (200)
+        # decrease server_available
+        status, body = s_conn.change_server_available(server_id, decrease=True)
+        if status == 400 or status == 404:
+            return body, status
+
+        # TODO: create rent record and send record to user (200)
 
         return jsonify({"id": user_id, "method": "post"})
 
