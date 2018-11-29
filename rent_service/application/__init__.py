@@ -3,7 +3,7 @@ from application.const import DB_URI
 from .database import db
 from flask_restful import Api
 import logging
-# import resources
+from application.resources.rent import Rent
 from logging.handlers import RotatingFileHandler
 
 
@@ -18,7 +18,7 @@ def create_app():
         db.create_all()
 
     api = Api(app)
-    # add resources to api
+    api.add_resource(Rent, '/rent')
 
     handler = logging.handlers.RotatingFileHandler(
         'rent.log',

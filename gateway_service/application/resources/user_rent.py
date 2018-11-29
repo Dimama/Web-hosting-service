@@ -2,8 +2,10 @@ from flask_restful import Resource, reqparse, current_app
 from flask import jsonify, request
 from application.servers_connector import ServersConnector
 from application.users_connector import UsersConnector
+from application.rent_connector import RentConnector
 from application.const import SERVERS_SERVICE_ADDRESS as serv_addr
 from application.const import USERS_SERVICE_ADDRESS as users_addr
+from application.const import RENT_SERVICE_ADDRESS as rent_addr
 
 
 class UserRent(Resource):
@@ -72,9 +74,10 @@ class UserRent(Resource):
         if status == 400 or status == 404:
             return body, status
 
-        # TODO: create rent record and send record to user (200)
+        r_conn = RentConnector(rent_addr)
+        status, body = r_conn.create_rent(user_id, server_id, duration)
 
-        return jsonify({"id": user_id, "method": "post"})
+        return body, status
 
     def delete(self, user_id, rent_id):
         # 400 - bad request
