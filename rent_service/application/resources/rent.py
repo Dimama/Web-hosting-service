@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from application.models.models import RentModel
 from flask import current_app, request
+from application.exceptions import NoRentException
 
 
 class Rent(Resource):
@@ -20,7 +21,6 @@ class Rent(Resource):
 
         :return: (response data in json, response status code)
         """
-        print(request.form.to_dict())
         current_app.logger.info('POST: {}  {}'.format(request.full_path,
                                                      request.get_json(force=True)))
         args = self.post_reqparser.parse_args()
@@ -32,8 +32,48 @@ class Rent(Resource):
 
         return {'message': 'rent with id: {} created'.format(rent_id)}, 201
 
-    def get(self):
-        pass
+    def get(self, user_id, rent_id=None):
+        """
+        Method to process get responses for rent resources
 
-    def delete(self):
-        pass
+        :param user_id:
+        :param rent_id:
+        :return: (response data in json, response status code)
+        """
+
+        current_app.logger.info('GET: {}'.format(request.full_path))
+
+        if rent_id is None:
+            objects = RentModel.get_rents_for_user(user_id)
+
+            if not objects:
+                current_app.logger.warn("Resource not found")
+                return {'message': 'rents not found'}, 404
+            else:
+                return {'rents': [o.to_json() for o in objects]}, 200
+
+        else:
+            rent = RentModel.get_rent_for_user_by_id(user_id, rent_id)
+            if rent is None:
+                current_app.logger.warn("Resource not found")
+                return {'message': 'rent not found'}, 404
+            else:
+                return rent.to_json(), 200
+
+    def delete(self, rent_id):
+        """
+        Method to process DELETE request to Rent service
+
+        :param rent_id: id of record which need to delete
+        :return: (response data in json, response status code)
+        """
+
+        current_app.logger.info('DELETE: {}'.format(request.full_path))
+
+        try:
+            RentModel.delete_rent(rent_id)
+        except NoRentException as e:
+            current_app.logger.warn(str(e))
+            return {'message': str(e)}, 404
+        else:
+            return {'message': 'rent with id: {} deleted'.format(rent_id)}, 204

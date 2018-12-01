@@ -18,7 +18,9 @@ def create_app():
         db.create_all()
 
     api = Api(app)
-    api.add_resource(Rent, '/rent')
+    api.add_resource(Rent, '/rent', '/rent/<int:rent_id>',
+                     '/user/<int:user_id>/rent/<int:rent_id>',
+                     '/user/<int:user_id>/rent')
 
     handler = logging.handlers.RotatingFileHandler(
         'rent.log',
