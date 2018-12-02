@@ -80,9 +80,18 @@ class UserRent(Resource):
         return body, status
 
     def delete(self, user_id, rent_id):
-        # 400 - bad request
-        # delete rent (404 not found rent)
-        # update server available
-        # return 204
-        return jsonify({"user_id": user_id, "rent_id": rent_id,
-                        "method": "delete"})
+
+        current_app.logger.info('DELETE: {}'.format(request.full_path))
+        r_conn = RentConnector(rent_addr)
+
+        status, body = r_conn.get_rent(user_id, rent_id)
+        if status == 404:
+            return body, status
+
+        server_id = body['server_id']
+        s_conn = ServersConnector(serv_addr)
+        _ = s_conn.change_server_available(server_id, decrease=False)
+
+        status, body = r_conn.delete_rent(rent_id)
+
+        return body, status

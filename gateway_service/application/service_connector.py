@@ -40,6 +40,9 @@ class ServiceConnector(object):
         """
 
         r = requests.delete(self.base_url + url)
+        if r.status_code == 204:
+            return r.status_code, {'message': 'resource deleted'}
+
         return r.status_code, r.json()
 
     def send_put_request(self, url, body):
