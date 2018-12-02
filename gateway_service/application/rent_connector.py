@@ -21,6 +21,19 @@ class RentConnector(ServiceConnector):
 
         return code, body
 
+    def get_rents_for_user(self, user_id):
+        """
+        Method to get all rents from Rent serive to user
+
+        :param user_id:
+        :return: (response code, response data in json)
+        """
+
+        code, body = self.send_get_request('/user/{}/rent'.format(user_id))
+        current_app.logger.debug("Response from rent: {}, {}".format(body, code))
+
+        return code, body
+
     def create_rent(self, user_id, server_id, duration):
         """
         Method to create rent in Rent service

@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse, current_app
-from flask import jsonify, request
+from flask import request
 from application.servers_connector import ServersConnector
 from application.users_connector import UsersConnector
 from application.rent_connector import RentConnector
@@ -23,15 +23,28 @@ class UserRent(Resource):
         super(UserRent, self).__init__()
 
     def get(self, user_id):
-        # add pagination
-        # 400 - bad request
-        # 200 - ok
-        # 404 - not found
-        # get configurations for user
-        # get configurations from servers_service
-        # accumulate data
 
-        return jsonify({"id": user_id, "method": "get"})
+        current_app.logger.info('GET: {}'.format(request.full_path))
+
+        s_conn = ServersConnector(serv_addr)
+        r_conn = RentConnector(rent_addr)
+
+        status, body = r_conn.get_rents_for_user(user_id)
+        if status == 404:
+            return body, status
+
+        users_rents = []
+        for rent in body['rents']:
+            _, s_body = s_conn.get_server_by_id(rent['server_id'])
+            resp_rent = s_body['server info']
+            resp_rent.update(rent)
+            resp_rent.pop('user_id')
+            resp_rent.pop('server_id')
+            resp_rent.pop('id')
+            resp_rent.pop('count')
+            users_rents.append(resp_rent)
+
+        return {'user rents': users_rents}, 200
 
     def post(self, user_id):
 
