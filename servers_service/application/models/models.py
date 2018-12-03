@@ -12,8 +12,8 @@ class ServerModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     os = db.Column(db.String(40), nullable=False)
     ram = db.Column(db.Integer, default=16)
-    cpu = db.Column(db.Integer, default=4)
-    drive_size = db.Column(db.Integer, default=1000)
+    cpu = db.Column(db.Integer, default=6)
+    drive_size = db.Column(db.Integer, default=320)
 
     def save(self):
         db.session.add(self)

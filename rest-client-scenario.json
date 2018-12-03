@@ -1,0 +1,562 @@
+{
+  "front-version": "2.19.1",
+  "version": 3,
+  "nodes": [
+    {
+      "type": "Project",
+      "id": "628ba96e-4da4-4283-b592-272e1409667f",
+      "lastModified": "2018-12-03T10:25:36.085+03:00",
+      "name": "RSOI-lab2"
+    },
+    {
+      "type": "Scenario",
+      "description": "",
+      "id": "809cf4a5-5f98-42a7-886f-11a00571462e",
+      "lastModified": "2018-12-03T10:25:36.085+03:00",
+      "name": "Scenario 1",
+      "requestOrder": [
+        "1. Get all servers without pagination",
+        "2. Get first 5 servers with pagination",
+        "3. Get 3 servers with pagination from second page",
+        "4. Get full info about server with id 5",
+        "5. Rent 5 server by user 2 for 2 month",
+        "6. Rent 5 server by user 2 for 1 month",
+        "7. Get full info about server with id 5 once again",
+        "8. Rent 3 server by user 2 for 2 month",
+        "9. Get all rents for user 2",
+        "10. Try to delete not existed rent",
+        "11. Delete rent for user 2",
+        "12. Get all rents for user 2 once again",
+        "13. Get full info about server with id 5"
+      ],
+      "parentId": "628ba96e-4da4-4283-b592-272e1409667f"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/server"
+      },
+      "description": "",
+      "id": "0d3c11a2-30e8-43fe-9988-21df399b5ff7",
+      "lastModified": "2018-12-03T10:00:12.428+03:00",
+      "name": "1. Get all servers without pagination",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "page",
+              "value": "1"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/server"
+      },
+      "description": "",
+      "id": "e7b85b83-c4c1-4d23-8c34-279015da6951",
+      "lastModified": "2018-12-03T10:00:37.617+03:00",
+      "name": "2. Get first 5 servers with pagination",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "page",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "size",
+              "value": "3"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/server"
+      },
+      "description": "",
+      "id": "551122d8-5d33-49c6-a041-c5449f83a7d9",
+      "lastModified": "2018-12-03T10:02:15.116+03:00",
+      "name": "3. Get 3 servers with pagination from second page",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/server/5"
+      },
+      "id": "041f83bd-b0c9-4620-b22f-327fd9c44575",
+      "lastModified": "2018-12-03T10:24:45.064+03:00",
+      "name": "4. Get full info about server with id 5",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+        "name": "POST"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\"server_id\": 5,\n\"duration\": 2}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent"
+      },
+      "id": "03bfa89b-f686-4efd-a6f6-f131dcb578ce",
+      "lastModified": "2018-12-03T10:24:50.465+03:00",
+      "name": "5. Rent 5 server by user 2 for 2 month",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+        "name": "POST"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\"server_id\": 5,\n\"duration\": 1}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent"
+      },
+      "id": "b8f3de8e-5827-440c-a9c7-d79d8bf77e8d",
+      "lastModified": "2018-12-03T10:24:54.720+03:00",
+      "name": "6. Rent 5 server by user 2 for 1 month",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/server/5"
+      },
+      "id": "9adccd28-ec83-40b9-9b07-09c2e63909d3",
+      "lastModified": "2018-12-03T10:24:59.421+03:00",
+      "name": "7. Get full info about server with id 5 once again",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+        "name": "POST"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\"server_id\": 3,\n\"duration\": 2}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent"
+      },
+      "id": "1bfa044d-df71-4cd2-ad92-f4a3585f99c7",
+      "lastModified": "2018-12-03T10:25:05.265+03:00",
+      "name": "8. Rent 3 server by user 2 for 2 month",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent"
+      },
+      "id": "3edb8cb0-6202-4a83-9ad0-3bee4e5705f0",
+      "lastModified": "2018-12-03T10:25:12.061+03:00",
+      "name": "9. Get all rents for user 2",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.5",
+        "name": "DELETE"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent/3"
+      },
+      "description": "",
+      "id": "a65fd7af-9f12-4b20-8b91-c8d6decd9d0d",
+      "lastModified": "2018-12-03T10:25:18.556+03:00",
+      "name": "10. Try to delete not existed rent",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.5",
+        "name": "DELETE"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent/1"
+      },
+      "id": "d2538e44-c402-4dcc-b230-8b7997398e4b",
+      "lastModified": "2018-12-03T10:25:24.569+03:00",
+      "name": "11. Delete rent for user 2",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/user/2/rent"
+      },
+      "id": "69737865-9861-463d-972b-5355d3b87b23",
+      "lastModified": "2018-12-03T10:25:29.482+03:00",
+      "name": "12. Get all rents for user 2 once again",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "formBody": {
+          "overrideContentType": true,
+          "encoding": "application/x-www-form-urlencoded",
+          "items": []
+        },
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": []
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "localhost:8080",
+        "path": "/server/5"
+      },
+      "description": "",
+      "id": "ce9597ac-7fd7-4faf-9e7d-e6cb99e397b1",
+      "lastModified": "2018-12-03T10:25:36.085+03:00",
+      "name": "13. Get full info about server with id 5",
+      "headers": [],
+      "metaInfo": {
+        "ownerId": "github|22568098"
+      },
+      "parentId": "809cf4a5-5f98-42a7-886f-11a00571462e"
+    }
+  ]
+}

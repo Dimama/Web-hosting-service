@@ -11,8 +11,8 @@ def setup_users_db():
 
     db.session.commit()
 
-    db.session.add(UserBillsModel(user_id=1, money_count=1000))
-    db.session.add(UserBillsModel(user_id=2, money_count=2500))
+    db.session.add(UserBillsModel(user_id=1, money_count=200))
+    db.session.add(UserBillsModel(user_id=2, money_count=1000))
     db.session.add(UserBillsModel(user_id=3))
 
     db.session.commit()
