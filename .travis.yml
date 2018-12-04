@@ -11,4 +11,5 @@ script:
      - coverage run --source="application/resources/" -m unittest discover -s test/
 
 after_success:
-  - codecov
+     - coverage report
+     - coveralls
