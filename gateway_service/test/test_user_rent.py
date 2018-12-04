@@ -92,3 +92,18 @@ class TestServerResource(TestCase):
         res = self.client().post('/user/1/rent', json={'server_id': 1,
                                                        'duration': 1})
         self.assertEqual(res.status_code, 201)
+
+    @patch('application.servers_connector.ServersConnector.'
+           'get_server_available_count_and_price')
+    @patch('application.users_connector.UsersConnector.get_user_bill_money_count')
+    def test_no_such_money(self, get_money_mock, get_count_mock):
+
+        get_money_mock.return_value = (200, {'id': 1, 'name': 'ivan',
+                                             'acc_type': 'free', 'money': 2000})
+        get_count_mock.return_value = (200, {'count': 10, 'price': 960})
+
+        res = self.client().post('/user/1/rent', json={'server_id': 1,
+                                                       'duration': 3})
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.json, {'message': 'not enough money on bill'})
