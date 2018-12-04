@@ -8,7 +8,7 @@ class TestUsersService(TestCase):
 
     def setUp(self):
 
-        self.app = create_app()
+        self.app = create_app(testing_mode=True)
         self.client = self.app.test_client
 
     @patch('application.models.models.UserModel.get_user_info_by_id')
