@@ -3,6 +3,7 @@ Training project: Simple web hosting portal using microservices on Flask
 
 [![Build Status](https://travis-ci.org/Dimama/Web-hosting-service.svg?branch=develop)](https://travis-ci.org/Dimama/Web-hosting-service)
 
+[![Coverage Status](https://coveralls.io/repos/github/Dimama/Web-hosting-service/badge.svg?branch=develop)](https://coveralls.io/github/Dimama/Web-hosting-service?branch=develop)
 
 ## Setup and run
 1. Make virtual environment and activate
