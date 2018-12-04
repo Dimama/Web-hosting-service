@@ -7,9 +7,17 @@ install:
      pip install -r requirements.txt
 
 script:
+     - mkdir coverage_dir
      - cd gateway_service/
      - coverage run --source="application/resources/" -m unittest discover -s test/
+     - cp .coverage ../coverage_dir/.coverage.gateway
+
+     - cd ../users_service/
+     - coverage run  --source="application/resources/" --omit="application/resources/__init__.py" -m unittest discover -s test/
+     - cp .coverage ../coverage_dir/.coverage.users
 
 after_success:
-     - coverage report
+     - cd ../coverage_dir/
+     - coverage combine
+     - coverage report -m
      - coveralls
