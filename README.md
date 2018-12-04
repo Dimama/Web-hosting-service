@@ -1,6 +1,9 @@
 # Web-hosting-service
 Training project: Simple web hosting portal using microservices on Flask
 
+[![Build Status](https://travis-ci.org/Dimama/Web-hosting-service.svg?branch=develop)](https://travis-ci.org/Dimama/Web-hosting-service)
+
+
 ## Setup and run
 1. Make virtual environment and activate
 2. `pip install -r requirements.txt`
