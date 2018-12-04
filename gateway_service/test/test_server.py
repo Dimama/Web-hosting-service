@@ -1,5 +1,6 @@
 from application import create_app
-from unittest import TestCase
+from unittest import TestCase, main
+from unittest.mock import patch
 
 
 class TestServerResource(TestCase):
@@ -12,7 +13,34 @@ class TestServerResource(TestCase):
         res = self.client().get('/server')
         self.assertEqual(res.status_code, 400)
 
-    def test_pagination(self):
+    def test_bad_pagination(self):
+        res = self.client().get('/server?page=1&size=6')
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json, {"message":
+                                    {"size": "Incorrect size per page"}})
+
+    @patch('application.servers_connector.ServersConnector.get_servers')
+    def test_pagination(self, mock):
+        mock.return_value =\
+            (200, {'servers': [{'id': 1,
+                                'OS': 'CentOS7',
+                                'RAM': 16,
+                                'CPU': 6,
+                                'Drive': 320}]})
+
         res = self.client().get('/server?page=1&size=1')
+
         self.assertEqual(res.status_code, 200)
 
+    @patch('application.servers_connector.ServersConnector.get_server_by_id')
+    def test_get_server_by_id(self, mock):
+        mock.return_value =\
+            (200, {'server info': [{'id': 1,
+                                'OS': 'CentOS7',
+                                'RAM': 16,
+                                'CPU': 6,
+                                'Drive': 320}]})
+
+        res = self.client().get('/server/1')
+
+        self.assertEqual(res.status_code, 200)

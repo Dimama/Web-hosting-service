@@ -1,0 +1,14 @@
+language: python
+
+python:
+     - "3.6"
+
+install:
+     pip install -r requirements.txt
+
+script:
+     - cd gateway_service/
+     - coverage run --source="application/resources/" -m unittest discover -s test/
+
+after_success:
+  - codecov
