@@ -11,6 +11,10 @@ cd ../users_service/
 coverage run  --source="application/resources/" --omit="application/resources/__init__.py" -m unittest discover -s test/
 cp .coverage ../coverage_dir/.coverage.users
 
+cd ../servers_service/
+coverage run  --source="application/resources/" --omit="application/resources/__init__.py" -m unittest discover -s test/
+cp .coverage ../coverage_dir/.coverage.servers
+
 cd ../coverage_dir/
 coverage combine
 coverage report -m
