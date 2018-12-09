@@ -1,0 +1,2 @@
+class NoServerException(Exception):
+    pass

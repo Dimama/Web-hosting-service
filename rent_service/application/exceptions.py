@@ -1,0 +1,2 @@
+class NoRentException(Exception):
+    pass
