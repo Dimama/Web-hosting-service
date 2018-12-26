@@ -40,7 +40,6 @@ class UserRent(Resource):
             resp_rent.update(rent)
             resp_rent.pop('user_id')
             resp_rent.pop('server_id')
-            resp_rent.pop('id')
             resp_rent.pop('count')
             users_rents.append(resp_rent)
 

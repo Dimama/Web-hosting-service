@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS
 from application.resources.server import Server
 from application.resources.user_rent import UserRent
 import logging
@@ -10,6 +11,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
+    cors = CORS(app, resources={r"*": {"origins": "*"}})
     api = Api(app)
     api.add_resource(Server, '/server',
                      '/server/<int:server_id>')
