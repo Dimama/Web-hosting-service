@@ -7,7 +7,7 @@ from application.exceptions import NoServerException
 class Server(Resource):
     def __init__(self):
         self.get_reqparser = reqparse.RequestParser()
-        self.get_reqparser.add_argument('page', type=int, required=True,
+        self.get_reqparser.add_argument('page', type=int, required=False, default=0,
                                    help='No pagination page')
         self.get_reqparser.add_argument('size', type=int, choices=[1, 2, 3, 4, 5],
                                    default=5, help='Incorrect size per page')
@@ -33,7 +33,11 @@ class Server(Resource):
             args = self.get_reqparser.parse_args()
             page = args['page']
             per_page = args['size']
-            objects = ServerModel.get_servers_with_pagination(page, per_page)
+
+            if page == 0:
+                objects = ServerModel.get_all_servers()
+            else:
+                objects = ServerModel.get_servers_with_pagination(page, per_page)
 
             if not objects:
                 current_app.logger.warn("Resource not found")

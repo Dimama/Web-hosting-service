@@ -6,9 +6,9 @@ class ServersConnector(ServiceConnector):
     """
     Class to connect with Servers Service
     """
-    def get_servers(self, page, size):
+    def get_servers_with_pag(self, page, size):
         """
-        Method to get info about all servers using pagination
+        Method to get info about servers using pagination
 
         :param page: page number
         :param size: count elements per page
@@ -16,6 +16,16 @@ class ServersConnector(ServiceConnector):
         """
 
         url = "/server?page={}&size={}".format(page, size)
+        return self.send_get_request(url)
+
+    def get_servers(self):
+        """
+        Method to get info about all servers
+
+        :return: (response code, response data in json)
+        """
+
+        url = "/server".format()
         return self.send_get_request(url)
 
     def get_server_by_id(self, server_id):

@@ -9,10 +9,6 @@ class TestServerResource(TestCase):
         self.app = create_app()
         self.client = self.app.test_client
 
-    def test_bad_url(self):
-        res = self.client().get('/server')
-        self.assertEqual(res.status_code, 400)
-
     def test_bad_pagination(self):
         res = self.client().get('/server?page=1&size=6')
         self.assertEqual(res.status_code, 400)

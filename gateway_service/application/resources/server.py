@@ -10,7 +10,7 @@ class Server(Resource):
     """
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('page', type=int, required=True,
+        self.reqparse.add_argument('page', type=int, required=False, default=0,
                                    help='No pagination page')
         self.reqparse.add_argument('size', type=int, choices=[1, 2, 3, 4, 5],
                                    default=5, help='Incorrect size per page')
@@ -32,7 +32,10 @@ class Server(Resource):
             args = self.reqparse.parse_args()
             page, size = args['page'], args['size']
 
-            status, body = connector.get_servers(page, size)
+            if page == 0:
+                status, body = connector.get_servers()
+            else:
+                status, body = connector.get_servers_with_pag(page, size)
         else:
             # response to servers_service to get config by id
             status, body = connector.get_server_by_id(server_id)
