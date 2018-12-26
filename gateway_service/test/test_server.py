@@ -15,7 +15,7 @@ class TestServerResource(TestCase):
         self.assertEqual(res.json, {"message":
                                     {"size": "Incorrect size per page"}})
 
-    @patch('application.servers_connector.ServersConnector.get_servers')
+    @patch('application.servers_connector.ServersConnector.get_servers_with_pag')
     def test_pagination(self, mock):
         mock.return_value =\
             (200, {'servers': [{'id': 1,
