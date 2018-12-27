@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 
-class ServersTable extends Component {
-    
-    constructor(props) {
-        super(props);
-    }
-    
+class ServersTable extends Component {  
     render() {
 
         const paginate_options = {
@@ -25,14 +20,14 @@ class ServersTable extends Component {
 
           };
         return(
-            <BootstrapTable data={ this.props.data } pagination={ true } options={ paginate_options }>
-                <TableHeaderColumn dataField='id' isKey={ true }>ID</TableHeaderColumn>
-                <TableHeaderColumn dataField='OS'>OS</TableHeaderColumn>
-                <TableHeaderColumn dataField='CPU'>CPU</TableHeaderColumn>
-                <TableHeaderColumn dataField='Drive'>Drive,Gb</TableHeaderColumn>
-                <TableHeaderColumn dataField='RAM'>RAM,Gb</TableHeaderColumn>
-                <TableHeaderColumn dataField='price'>Price,$</TableHeaderColumn>
-                <TableHeaderColumn dataField='count'>Count</TableHeaderColumn>
+            <BootstrapTable className="Table" data={ this.props.data } pagination={ true } options={ paginate_options }>
+                <TableHeaderColumn className="Header" dataField='id' isKey={ true }>ID</TableHeaderColumn>
+                <TableHeaderColumn className="Header" dataField='OS'>OS</TableHeaderColumn>
+                <TableHeaderColumn className="Header" dataField='CPU'>CPU</TableHeaderColumn>
+                <TableHeaderColumn className="Header" dataField='Drive'>Drive,Gb</TableHeaderColumn>
+                <TableHeaderColumn className="Header" dataField='RAM'>RAM,Gb</TableHeaderColumn>
+                <TableHeaderColumn className="Header" dataField='price'>Price,$</TableHeaderColumn>
+                <TableHeaderColumn className="Header" dataField='count'>Count</TableHeaderColumn>
             </BootstrapTable>
         );
     }

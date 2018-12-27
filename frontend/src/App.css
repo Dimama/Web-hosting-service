@@ -1,8 +1,12 @@
 .App {
   text-align: center;
   background-color: cornflowerblue;
-  font-size: 10px;
+  font-size: 12px;
   color: azure;
+}
+
+.Header {
+  color: #3151ff;
 }
 
 .Logo {
@@ -13,8 +17,12 @@
   margin-right: 8px;
 }
 
-.Header {
-  background-color: #062a42;
+.Tabs {
+  margin-top: 30px;
+}
+
+.Basic {
+  background-color: #112431;
   min-height: 10vh;
   display: flex;
   flex-direction: column;
@@ -24,14 +32,25 @@
   color: white;
 }
 
-.Servers-Table {
+.Table {
   margin-top: 10px;
+  margin-bottom: 10px;
   margin-left: 5%;
   margin-right: 5%;
-  color: black;
-  
-
 }
+
+.Input {
+  margin-left: 2px;
+  margin-right: 2px;
+  width: 100px;
+  text-align: center;
+}
+
+.Button {
+  color: #3151ff;
+  margin-left: 2px;
+}
+
 .App-link {
   color: #61dafb;
 }

@@ -171,9 +171,9 @@ class MainComponent extends Component {
 
     render() {
         return(
-            <div>
-                <div className="Header" >
-                    <h1>Web Hosting Service</h1>
+            <div className="App">
+                <div className="Basic" >
+                    <h1 className="Header">Web Hosting Service</h1>
                     <div>
                         <img src={ubuntu_logo} className="Logo"/>
                         <img src={fedora_logo} className="Logo"/>
@@ -181,13 +181,13 @@ class MainComponent extends Component {
                     </div>
                 </div>
                 <div>
-                    <Tabs className="Header">
-                        <TabList>
+                    <Tabs className="Basic">
+                        <TabList className="Tabs">
                             <Tab>Rent server</Tab>
                             <Tab>Your rents</Tab>
                         </TabList>
                         <TabPanel>
-                            <h2>Available servers</h2>
+                            <h2  className="Header">Available servers</h2>
                             <div>
                                 <ServersTable data={this.state.servers}/>
                                 <RentForm handleClick={this.handleRentClick}
@@ -198,7 +198,7 @@ class MainComponent extends Component {
                             </div>
                         </TabPanel>
                         <TabPanel>
-                            <RentTable data={this.state.rents}/>
+                            <RentTable className="Table" data={this.state.rents}/>
                             <DeleteRentForm handleClick={this.handleDeleteClick}
                                             rent_id={this.state.rent_id}
                                             onChangeRentId={this.handleChangeRentId}/>

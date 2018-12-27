@@ -5,11 +5,11 @@ class RentForm extends React.Component {
     render() {
       return (
           <div>
-            <input type="text" name="duration" placeholder="duration"
+            <input className="Input" type="text" name="duration" placeholder="duration"
                    value={this.props.duration} onChange={this.props.onChangeDuration}/>
-            <input type="text" name="server id" placeholder="server id"
+            <input className="Input" type="text" name="server id" placeholder="server id"
                     value={this.props.server_id} onChange={this.props.onChangeServerId}/>
-            <button onClick={this.props.handleClick}>
+            <button className="Button" onClick={this.props.handleClick}>
               Rent server
             </button>
           </div>
