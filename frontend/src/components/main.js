@@ -6,7 +6,7 @@ import ServersTable from './servers_table'
 import RentTable from './rent_table'
 import RentForm from './rent_form'
 import DeleteRentForm from './delete_rent_form'
-import api_url from '../const'
+import API_URL from '../const'
 import ubuntu_logo from '../logo/ubuntu.png';
 import fedora_logo from '../logo/fedora.png';
 import centos_logo from '../logo/centos.png';
@@ -25,7 +25,7 @@ class MainComponent extends Component {
             server_id: '',
             rent_id: '',
             duration: '',
-            user_id: 2
+            user_id: 1
         }
 
         this.handleRentClick = this.handleRentClick.bind(this)
@@ -38,11 +38,18 @@ class MainComponent extends Component {
     handleChangeDuration = e => this.setState({duration: e.target.value});
 
     validate_rent_input(server_id, duration) {
-        return (server_id.length > 3)
+        return ((server_id.match(/^\d+$/))
+                && (duration.match(/^\d+$/))
+                && (parseInt(duration) !== 0)
+                && (parseInt(server_id) !== 0))
+    }
+
+    validate_delete_input(rent_id) {
+        return ((rent_id.match(/^\d+$/)) && (parseInt(rent_id) !== 0))
     }
 
     async getServerInfo(server_id) {
-        var response = await fetch('http://localhost:8080/server/' + server_id, {method: 'GET'});
+        var response = await fetch(API_URL + 'server/' + server_id, {method: 'GET'});
         var body = await response.json();
         if (response.status === 200) {
             return body['server info']; 
@@ -53,7 +60,7 @@ class MainComponent extends Component {
     }
 
     async getAllServers() {
-        var response = await fetch('http://localhost:8080/server', {method: 'GET'});
+        var response = await fetch(API_URL + 'server', {method: 'GET'});
         var body = await response.json();
         if (response.status === 200) {
             const servers = body.servers;
@@ -73,7 +80,7 @@ class MainComponent extends Component {
     }
 
     async getUserRents(user_id) {
-        var response = await fetch('http://localhost:8080/user/' + user_id + '/rent', {method: 'GET'});
+        var response = await fetch(API_URL + 'user/' + user_id + '/rent', {method: 'GET'});
         var body = await response.json();
         if (response.status === 200) {
             return body['user rents']; 
@@ -83,39 +90,71 @@ class MainComponent extends Component {
         }
     }
 
-    handleDeleteClick() {
-        
-        if (this.validate_rent_input(this.state.rent_id)) {
-            alert('OK')
+    async handleDeleteClick() {
+        if (this.validate_delete_input(this.state.rent_id)) {
+
+            var response = await fetch(API_URL + 'user/' + this.state.user_id +
+                                     '/rent/' + this.state.rent_id, {method: 'DELETE'});
+            if (response.status === 400) {
+                alert("Error: bad request");
+            } else if (response.status === 404) {
+                var body = await response.json()
+                alert("Error: " +  body.message);
+            } else { // deleted
+                alert("Rent was deleted")
+                await this.updateUserRents();
+                await this.updateServers();
+            }
         } else {
-          alert(this.state.rent_id)
+            alert("Error: rent id must be positive integer");
         }
     }
 
-    handleRentClick() {
-        //var new_servers = this.state.servers.slice();
-        //new_servers[0].name = Math.random().toString(36).substring(7);;
-        //new_servers[1].name = this.state.value
-     
-        if (this.validate_rent_input(this.state.server_id)) {
-            alert('OK')
+    async handleRentClick() {
+        if (this.validate_rent_input(this.state.server_id, this.state.duration)) {
+
+            var request_data = {
+                method: 'POST',
+                body: JSON.stringify({
+                    duration: this.state.duration,
+                    server_id: this.state.server_id}),
+                headers: { 'Content-Type': 'application/json' }
+            }
+
+            var response = await fetch(API_URL + 'user/' + this.state.user_id + '/rent',
+                 request_data);
+            var body = await response.json()
+            if (response.status === 400) {
+                alert("Error: bad request");
+            } else if (response.status === 404) {
+                alert("Error: " + body.message);
+            } else if (response.status === 422) {
+                alert("Warning: " + body.message);
+            } else { // created
+                alert("Successfull rent!")
+                await this.updateUserRents();
+                await this.updateServers();
+            }
+
         } else {
-          alert(this.state.server_id)
+          alert("Error: duration and id must be positive integer");
         }
         
-        // checkValid
-        // Post request
-        // Get request to update info
-        // setState 
-
-        //this.setState({
-        //  servers: new_servers});
       }
     
-    async componentWillMount() {
+    async updateUserRents() {
+        var user_rents = await this.getUserRents(this.state.user_id);
+        if (user_rents !== []) {
+            this.setState({
+                rents: user_rents
+            });
+        } else {
+            alert("Error: can not get info about your rents. Try later.")
+        }
+    }
 
+    async updateServers() {
         var all_servers = await this.getAllServers();
-        //console.log(all_servers)
         if (all_servers) {
             this.setState({
                 servers: all_servers
@@ -123,19 +162,11 @@ class MainComponent extends Component {
         } else {
             alert("Error: can not get info about servers. Try later.")
         }
-        
-        var user_rents = await this.getUserRents(this.state.user_id);
-        if (user_rents !== null) {
-            this.setState({
-                rents: user_rents
-            });
-        } else {
-            alert("Error: can not get about your rents. Try later.")
-        }
+    }
 
-       
-        // request to get all user_rents
-        // request to gateway for initializing servers and rent
+    async componentWillMount() {
+        await this.updateServers();
+        await this.updateUserRents();
     }
 
     render() {
