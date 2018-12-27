@@ -197,7 +197,7 @@ class MainComponent extends Component {
                                             onChangeServerId={this.handleChangeServerId}/>
                             </div>
                         </TabPanel>
-                        <TabPanel>
+                        <TabPanel className="Tab">
                             <RentTable className="Table" data={this.state.rents}/>
                             <DeleteRentForm handleClick={this.handleDeleteClick}
                                             rent_id={this.state.rent_id}
@@ -205,7 +205,6 @@ class MainComponent extends Component {
                         </TabPanel>
                     </Tabs>
                 </div>
-
             </div>
         );
     }

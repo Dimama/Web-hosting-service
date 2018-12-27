@@ -3,6 +3,8 @@
   background-color: cornflowerblue;
   font-size: 12px;
   color: azure;
+  height: 100%;
+  font-family: monospace;
 }
 
 .Header {
@@ -39,10 +41,14 @@
   margin-right: 5%;
 }
 
+.Tab {
+  height: 100vh;
+}
+
 .Input {
   margin-left: 2px;
   margin-right: 2px;
-  width: 100px;
+  width: 150px;
   text-align: center;
 }
 

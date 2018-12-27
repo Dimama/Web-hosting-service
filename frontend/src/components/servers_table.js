@@ -17,12 +17,12 @@ class ServersTable extends Component {
             lastPage: 'Last',
             paginationShowsTotal: this.renderShowsTotal,
             paginationPosition: 'bottom'
-
           };
+          
         return(
             <BootstrapTable className="Table" data={ this.props.data } pagination={ true } options={ paginate_options }>
-                <TableHeaderColumn className="Header" dataField='id' isKey={ true }>ID</TableHeaderColumn>
-                <TableHeaderColumn className="Header" dataField='OS'>OS</TableHeaderColumn>
+                <TableHeaderColumn width="5%" className="Header" dataField='id' isKey={ true }>ID</TableHeaderColumn>
+                <TableHeaderColumn width="30%" className="Header" dataField='OS'>OS</TableHeaderColumn>
                 <TableHeaderColumn className="Header" dataField='CPU'>CPU</TableHeaderColumn>
                 <TableHeaderColumn className="Header" dataField='Drive'>Drive,Gb</TableHeaderColumn>
                 <TableHeaderColumn className="Header" dataField='RAM'>RAM,Gb</TableHeaderColumn>
