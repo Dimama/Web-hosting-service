@@ -11,22 +11,18 @@ class ServersTable extends Component {
     render() {
 
         const paginate_options = {
-            page: 1,  // which page you want to show as default
-            sizePerPageList: [], // you can change the dropdown list for size per page
-            sizePerPage: 3,  // which size per page you want to locate as default
-            pageStartIndex: 1, // where to start counting the pages
-            paginationSize: 3,  // the pagination bar size.
-            prePage: 'Prev', // Previous page button text
-            nextPage: 'Next', // Next page button text
-            firstPage: 'First', // First page button text
-            lastPage: 'Last', // Last page button text
-            paginationShowsTotal: this.renderShowsTotal,  // Accept bool or function
-            paginationPosition: 'bottom'  // default is bottom, top and both is all available
-            // keepSizePerPageState: true //default is false, enable will keep sizePerPage dropdown state(open/clode) when external rerender happened
-            // hideSizePerPage: true > You can hide the dropdown for sizePerPage
-            // alwaysShowAllBtns: true // Always show next and previous button
-            // withFirstAndLast: false > Hide the going to First and Last page button
-            // hidePageListOnlyOnePage: true > Hide the page list if only one page.
+            page: 1,
+            sizePerPageList: [],
+            sizePerPage: 3,
+            pageStartIndex: 1,
+            paginationSize: 3,
+            prePage: 'Prev',
+            nextPage: 'Next',
+            firstPage: 'First',
+            lastPage: 'Last',
+            paginationShowsTotal: this.renderShowsTotal,
+            paginationPosition: 'bottom'
+
           };
         return(
             <BootstrapTable data={ this.props.data } pagination={ true } options={ paginate_options }>
