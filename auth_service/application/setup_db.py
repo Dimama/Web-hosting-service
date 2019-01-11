@@ -1,12 +1,20 @@
 from application import db
-#from application.models.models import pass
+from application.models.models import UserModel
 
 
 def setup_auth_db():
-    pass
+    db.create_all()
+
+    db.session.add(UserModel(login="IIvanov",
+                             password=UserModel.generate_hash('password')))
+    db.session.add(UserModel(login="amamid",
+                             password=UserModel.generate_hash('qwerty')))
+    db.session.add(UserModel(login="john",
+                             password=UserModel.generate_hash('password')))
+
+    db.session.commit()
 
 
 def clear_auth_db():
-    pass
-    # engine = db.engine
-    # drop tables
+    engine = db.engine
+    UserModel.__table__.drop(engine)

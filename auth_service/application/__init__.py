@@ -2,7 +2,7 @@ from flask import Flask
 from application.const import DB_URI
 from flask_restful import Api
 from .database import db
-# import resource
+from application.resources.user_auth import UserLogin
 
 
 def create_app(testing_mode=False):
@@ -17,7 +17,7 @@ def create_app(testing_mode=False):
             db.create_all()
 
     api = Api(app)
-    # add resource to auth
+    api.add_resource(UserLogin, '/login')
 
     return app
 
