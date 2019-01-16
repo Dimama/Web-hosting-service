@@ -26,8 +26,8 @@ class UserRent(Resource):
 
         current_app.logger.info('GET: {}'.format(request.full_path))
 
-        s_conn = ServersConnector(serv_addr)
-        r_conn = RentConnector(rent_addr)
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
+        r_conn = RentConnector(rent_addr, 'RENT')
 
         status, body = r_conn.get_rents_for_user(user_id)
         if status == 404:
@@ -55,7 +55,7 @@ class UserRent(Resource):
         server_id = args['server_id']
 
         # check server available
-        s_conn = ServersConnector(serv_addr)
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
         status, body = s_conn.get_server_available_count_and_price(server_id)
         if status == 404 or status == 422:  # server not found or no available
             return body, status
@@ -64,7 +64,7 @@ class UserRent(Resource):
         duration = args['duration']
 
         # check user bills
-        u_conn = UsersConnector(users_addr)
+        u_conn = UsersConnector(users_addr, 'USERS')
         status, body = u_conn.get_user_bill_money_count(user_id)
         if status == 404 or status == 422:  # user not found or no money on bill
             return body, status
@@ -86,7 +86,7 @@ class UserRent(Resource):
         if status == 400 or status == 404:
             return body, status
 
-        r_conn = RentConnector(rent_addr)
+        r_conn = RentConnector(rent_addr, 'RENT')
         status, body = r_conn.create_rent(user_id, server_id, duration)
 
         return body, status
@@ -94,14 +94,14 @@ class UserRent(Resource):
     def delete(self, user_id, rent_id):
 
         current_app.logger.info('DELETE: {}'.format(request.full_path))
-        r_conn = RentConnector(rent_addr)
+        r_conn = RentConnector(rent_addr, 'RENT')
 
         status, body = r_conn.get_rent(user_id, rent_id)
         if status == 404:
             return body, status
 
         server_id = body['server_id']
-        s_conn = ServersConnector(serv_addr)
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
         _ = s_conn.change_server_available(server_id, decrease=False)
 
         status, body = r_conn.delete_rent(rent_id)

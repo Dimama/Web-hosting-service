@@ -16,7 +16,7 @@ class ServersConnector(ServiceConnector):
         """
 
         url = "/server?page={}&size={}".format(page, size)
-        return self.send_get_request(url)
+        return self.send_get_request(url, with_token=True)
 
     def get_servers(self):
         """
@@ -26,7 +26,7 @@ class ServersConnector(ServiceConnector):
         """
 
         url = "/server".format()
-        return self.send_get_request(url)
+        return self.send_get_request(url, with_token=True)
 
     def get_server_by_id(self, server_id):
         """
@@ -37,7 +37,7 @@ class ServersConnector(ServiceConnector):
         """
 
         url = "/server/{}".format(server_id)
-        return self.send_get_request(url)
+        return self.send_get_request(url, with_token=True)
 
     def get_server_available_count_and_price(self, server_id):
         """
@@ -50,7 +50,7 @@ class ServersConnector(ServiceConnector):
 
         url = "/server/{}".format(server_id)
 
-        code, body = self.send_get_request(url)
+        code, body = self.send_get_request(url, with_token=True)
 
         current_app.logger.debug("Response from servers: {}, {}".format(body, code))
 
@@ -74,7 +74,7 @@ class ServersConnector(ServiceConnector):
         url = '/server/{}'.format(server_id)
 
         delta = -1 if decrease else 1
-        code, body = self.send_put_request(url, {'delta': delta})
+        code, body = self.send_put_request(url, {'delta': delta}, with_token=True)
 
         current_app.logger.debug("Response from servers: {}, {}".format(body, code))
 

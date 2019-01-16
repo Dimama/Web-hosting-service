@@ -16,7 +16,8 @@ class RentConnector(ServiceConnector):
         :return: (response code, response data in json)
         """
         code, body = self.send_get_request('/user/{}/rent/{}'.
-                                           format(user_id, rent_id))
+                                           format(user_id, rent_id),
+                                           with_token=True)
         current_app.logger.debug("Response from rent: {}, {}".format(body, code))
 
         return code, body
@@ -29,7 +30,8 @@ class RentConnector(ServiceConnector):
         :return: (response code, response data in json)
         """
 
-        code, body = self.send_get_request('/user/{}/rent'.format(user_id))
+        code, body = self.send_get_request('/user/{}/rent'.format(user_id),
+                                           with_token=True)
         current_app.logger.debug("Response from rent: {}, {}".format(body, code))
 
         return code, body
@@ -46,7 +48,8 @@ class RentConnector(ServiceConnector):
 
         code, body = self.send_post_request('/rent', {'user_id': user_id,
                                                       'server_id': server_id,
-                                                      'duration': duration})
+                                                      'duration': duration},
+                                            with_token=True)
 
         current_app.logger.debug("Response from rent: {}, {}".format(body, code))
 
@@ -62,7 +65,8 @@ class RentConnector(ServiceConnector):
         :return: (response code, response data in json)
         """
 
-        code, body = self.send_delete_request('/rent/{}'.format(rent_id))
+        code, body = self.send_delete_request('/rent/{}'.format(rent_id),
+                                              with_token=True)
 
         current_app.logger.debug("Response from rent: {}, {}".format(body, code))
 

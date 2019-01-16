@@ -17,7 +17,7 @@ class UsersConnector(ServiceConnector):
 
         url = '/user/{}'.format(user_id)
 
-        code, body = self.send_get_request(url)
+        code, body = self.send_get_request(url, with_token=True)
 
         current_app.logger.debug("Response from users: {}, {}".format(body, code))
 
@@ -39,7 +39,7 @@ class UsersConnector(ServiceConnector):
 
         url = '/user/{}'.format(user_id)
 
-        code, body = self.send_put_request(url, {'price': price})
+        code, body = self.send_put_request(url, {'price': price}, with_token=True)
 
         current_app.logger.debug("Response from users: {}, {}".format(body, code))
 

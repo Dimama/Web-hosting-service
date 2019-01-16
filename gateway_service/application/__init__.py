@@ -10,6 +10,11 @@ from logging.handlers import RotatingFileHandler
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    app.config['GW-SECRET'] = 'GATEWAY-SECRET'
+    app.config['SERVERS'] = ''
+    app.config['USERS'] = ''
+    app.config['RENT'] = ''
+    app.config['AUTH'] = ''
 
     cors = CORS(app, resources={r"*": {"origins": "*"}})
     api = Api(app)
@@ -17,6 +22,7 @@ def create_app():
                      '/server/<int:server_id>')
     api.add_resource(UserRent, '/user/<int:user_id>/rent',
                      '/user/<int:user_id>/rent/<int:rent_id>')
+
 
     handler = logging.handlers.RotatingFileHandler(
         'gateway.log',
