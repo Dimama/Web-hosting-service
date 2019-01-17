@@ -3,6 +3,7 @@ from flask_restful import Api
 from flask_cors import CORS
 from application.resources.server import Server
 from application.resources.user_rent import UserRent
+from application.resources.auth import UserLogin, TokenRefresh
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -22,6 +23,8 @@ def create_app():
                      '/server/<int:server_id>')
     api.add_resource(UserRent, '/user/<int:user_id>/rent',
                      '/user/<int:user_id>/rent/<int:rent_id>')
+    api.add_resource(UserLogin, '/login')
+    api.add_resource(TokenRefresh, '/refresh')
 
 
     handler = logging.handlers.RotatingFileHandler(

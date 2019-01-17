@@ -3,9 +3,31 @@ from flask import request
 from application.servers_connector import ServersConnector
 from application.users_connector import UsersConnector
 from application.rent_connector import RentConnector
+from application.auth_connector import AuthConnector
 from application.const import SERVERS_SERVICE_ADDRESS as serv_addr
 from application.const import USERS_SERVICE_ADDRESS as users_addr
 from application.const import RENT_SERVICE_ADDRESS as rent_addr
+from application.const import AUTH_SERVICE_ADDRESS as auth_addr
+
+
+def token_required(func):
+    def _check_token(*args, **kwargs):
+        auth_headers = request.headers.get('Authorization', '').split()
+
+        if len(auth_headers) != 2:
+            return {'message': 'Authorization header required.'}, 401
+        if 'Bearer' not in auth_headers:
+            return {'message': 'Authorization header format: Bearer `JWT`'}, 401
+
+        a_conn = AuthConnector(auth_addr)
+
+        status, body = a_conn.check_token(auth_headers[1])
+
+        if status == 401:
+            return body, status
+
+        return func(*args, **kwargs)
+    return _check_token
 
 
 class UserRent(Resource):
@@ -22,6 +44,7 @@ class UserRent(Resource):
 
         super(UserRent, self).__init__()
 
+    @token_required
     def get(self, user_id):
 
         current_app.logger.info('GET: {}'.format(request.full_path))
@@ -45,6 +68,7 @@ class UserRent(Resource):
 
         return {'user rents': users_rents}, 200
 
+    @token_required
     def post(self, user_id):
 
         current_app.logger.info('POST: {} with body {}'.format(request.full_path,
@@ -91,6 +115,7 @@ class UserRent(Resource):
 
         return body, status
 
+    @token_required
     def delete(self, user_id, rent_id):
 
         current_app.logger.info('DELETE: {}'.format(request.full_path))
