@@ -1,10 +1,26 @@
 .App {
+
   text-align: center;
-  background-color: cornflowerblue;
+  background-color:  rgb(40, 69, 88);
   font-size: 12px;
   color: azure;
   height: 100%;
   font-family: monospace;
+}
+
+
+.App > div {
+  display: inline-block;
+  width: calc((100% - 150px));
+}
+
+.App .left {
+  width: 150px;
+}
+
+.TOP {
+  position: relative;
+  top: 10px;
 }
 
 .Header {
@@ -32,7 +48,9 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  width: 100%
 }
+
 
 .Table {
   margin-top: 10px;
