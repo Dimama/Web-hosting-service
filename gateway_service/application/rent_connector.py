@@ -49,7 +49,7 @@ class RentConnector(ServiceConnector):
         code, body = self.send_post_request('/rent', {'user_id': user_id,
                                                       'server_id': server_id,
                                                       'duration': duration},
-                                            with_token=True)
+                                            with_token=False)
 
         current_app.logger.debug("Response from rent: {}, {}".format(body, code))
 

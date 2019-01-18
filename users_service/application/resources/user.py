@@ -43,7 +43,7 @@ class User(Resource):
         current_app.logger.info("PUT: {}".format(request.full_path))
 
         args = self.put_parser.parse_args()
-        updated_bill = UserBillsModel.decrease_user_bill(user_id, args['price'])
+        updated_bill = UserBillsModel.change_user_bill(user_id, args['price'])
 
         # may be check on 404 ?
 

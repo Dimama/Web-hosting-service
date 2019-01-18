@@ -50,17 +50,17 @@ class UserBillsModel(db.Model):
         return {'money': self.money_count}
 
     @staticmethod
-    def decrease_user_bill(user_id, price):
+    def change_user_bill(user_id, price):
         """
         Method to update(decrease) user bill
 
         :param user_id:
-        :param price:
+        :param price: may be positive, if money return to bill
         :return updated bill
         """
 
         db.session.query(UserBillsModel).filter(UserBillsModel.user_id == user_id).\
-            update({UserBillsModel.money_count: UserBillsModel.money_count - price})
+            update({UserBillsModel.money_count: UserBillsModel.money_count + price})
 
         db.session.commit()
 

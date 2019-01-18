@@ -28,17 +28,20 @@ class UsersConnector(ServiceConnector):
 
         return code, {'money': body['user info']['money']}
 
-    def decrease_user_bill(self, user_id, price):
+    def change_user_bill(self, user_id, price, decrease=True):
         """
         Method to decrease user bill
 
         :param user_id: id of user whose bill need to decrease
-        :param price: rent amount that need to deducted from user bill
+        :param price: rent amount
+        :param decrease: add or sub money from bill
         :return: (response code, response data in json)
         """
 
-        url = '/user/{}'.format(user_id)
+        if decrease:
+            price *= -1
 
+        url = '/user/{}'.format(user_id)
         code, body = self.send_put_request(url, {'price': price}, with_token=True)
 
         current_app.logger.debug("Response from users: {}, {}".format(body, code))

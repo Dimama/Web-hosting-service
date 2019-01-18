@@ -53,7 +53,11 @@ class ServiceConnector(object):
 
         headers = self._make_headers(with_token)
 
-        r = requests.get(self.base_url + url, headers=headers)
+        try:
+            r = requests.get(self.base_url + url, headers=headers)
+        except requests.exceptions.ConnectionError:
+            return 503, {'message': 'service is not available'}
+
         code = r.status_code
         data = r.json()
 
@@ -75,7 +79,11 @@ class ServiceConnector(object):
 
         headers = self._make_headers(with_token)
 
-        r = requests.post(self.base_url + url, json=body, headers=headers)
+        try:
+            r = requests.post(self.base_url + url, json=body, headers=headers)
+        except requests.exceptions.ConnectionError:
+            return 503, {'message': 'service is not available'}
+
         code = r.status_code
         data = r.json()
 
@@ -96,7 +104,11 @@ class ServiceConnector(object):
 
         headers = self._make_headers(with_token)
 
-        r = requests.delete(self.base_url + url, headers=headers)
+        try:
+            r = requests.delete(self.base_url + url, headers=headers)
+        except requests.exceptions.ConnectionError:
+            return 503, {'message': 'service is not available'}
+
         code = r.status_code
 
         if with_token and code in [400, 401]:
@@ -120,7 +132,11 @@ class ServiceConnector(object):
 
         headers = self._make_headers(with_token)
 
-        r = requests.put(self.base_url + url, json=body, headers=headers)
+        try:
+            r = requests.put(self.base_url + url, json=body, headers=headers)
+        except requests.exceptions.ConnectionError:
+            return 503, {'message': 'service is not available'}
+
         code = r.status_code
         data = r.json()
 

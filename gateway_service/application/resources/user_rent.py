@@ -101,7 +101,7 @@ class UserRent(Resource):
             return {'message': 'not enough money on bill'}, 422
 
         # update user bill
-        status, body = u_conn.decrease_user_bill(user_id, total_price)
+        status, body = u_conn.change_user_bill(user_id, total_price, decrease=True)
         if status == 400:
             return body, status
 
@@ -112,6 +112,12 @@ class UserRent(Resource):
 
         r_conn = RentConnector(rent_addr, 'RENT')
         status, body = r_conn.create_rent(user_id, server_id, duration)
+
+        # make rollback
+        if status == 503:
+            _ = s_conn.change_server_available(server_id, decrease=False)
+            _ = u_conn.change_user_bill(user_id, total_price, decrease=False)
+            return {'message': 'Can not create rent'}, 500
 
         return body, status
 
