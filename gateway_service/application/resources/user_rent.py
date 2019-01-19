@@ -44,7 +44,7 @@ class UserRent(Resource):
 
         super(UserRent, self).__init__()
 
-    @token_required
+    #@token_required
     def get(self, user_id):
 
         current_app.logger.info('GET: {}'.format(request.full_path))
@@ -58,12 +58,21 @@ class UserRent(Resource):
 
         users_rents = []
         for rent in body['rents']:
-            _, s_body = s_conn.get_server_by_id(rent['server_id'])
-            resp_rent = s_body['server info']
+
+            resp_rent = {}
+            resp_rent.update(rent)
+
+            status, s_body = s_conn.get_server_by_id(rent['server_id'])
+            if status == 503:  # degrade functionality
+                current_app.logger.warning('Servers service not available')
+                resp_rent.update({'OS': '', 'RAM': '', 'CPU': '', 'Drive': ''})
+            else:
+                resp_rent.update(s_body['server info'])
+                resp_rent.pop('count')
+                resp_rent.pop('server_id')
+
             resp_rent.update(rent)
             resp_rent.pop('user_id')
-            resp_rent.pop('server_id')
-            resp_rent.pop('count')
             users_rents.append(resp_rent)
 
         return {'user rents': users_rents}, 200

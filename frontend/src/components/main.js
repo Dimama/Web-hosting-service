@@ -224,6 +224,8 @@ class MainComponent extends Component {
                 alert("Error: " + body.message);
             } else if (response.status === 422) {
                 alert("Warning: " + body.message);
+            } else if (response.status >= 500) {
+                alert("Server Error: " + body.message)
             } else { // created
                 alert("Successfull rent!")
                 await this.updateUserRents();

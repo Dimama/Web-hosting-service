@@ -26,7 +26,7 @@ class ServersConnector(ServiceConnector):
         """
 
         url = "/server".format()
-        return self.send_get_request(url, with_token=True)
+        return self.send_get_request(url)
 
     def get_server_by_id(self, server_id):
         """
@@ -37,7 +37,7 @@ class ServersConnector(ServiceConnector):
         """
 
         url = "/server/{}".format(server_id)
-        return self.send_get_request(url, with_token=True)
+        return self.send_get_request(url)
 
     def get_server_available_count_and_price(self, server_id):
         """

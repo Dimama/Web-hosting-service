@@ -20,7 +20,7 @@ class Server(Resource):
 
         super(Server, self).__init__()
 
-    @jwt_required
+    #@jwt_required
     def get(self, server_id=None):
         """
         Method to process get responses for server resources
@@ -57,7 +57,7 @@ class Server(Resource):
                 resp_body.update(res[1].to_json())
                 return {'server info': resp_body}, 200
 
-    @jwt_required
+    #@jwt_required
     def put(self, server_id):
         """
         Method to process put responses for server resources
