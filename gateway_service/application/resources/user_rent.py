@@ -1,13 +1,34 @@
 from flask_restful import Resource, reqparse, current_app
 from flask import request
-from application.servers_connector import ServersConnector
+
+from application.servers_connector import ServersConnector, ServersNotAvailableExcecption
 from application.users_connector import UsersConnector
 from application.rent_connector import RentConnector
 from application.auth_connector import AuthConnector
+
 from application.const import SERVERS_SERVICE_ADDRESS as serv_addr
 from application.const import USERS_SERVICE_ADDRESS as users_addr
 from application.const import RENT_SERVICE_ADDRESS as rent_addr
 from application.const import AUTH_SERVICE_ADDRESS as auth_addr
+
+from celery import Celery, exceptions
+
+celery = Celery('tasks',
+                broker='redis://localhost:6379/0')
+
+
+@celery.task(bind=True)
+def background_change_server_available(self, server_id, is_decrease):
+    try:
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
+        _ = s_conn.change_server_available(server_id, decrease=is_decrease)
+    except ServersNotAvailableExcecption:
+        print("RETRY:" + str(self.request.retries + 1))
+        try:
+            self.retry(countdown=10, max_retries=10)
+        except exceptions.MaxRetriesExceededError:
+            print("Max retries reached. Sending report...")
+            # code for report about error
 
 
 def token_required(func):
@@ -130,7 +151,7 @@ class UserRent(Resource):
 
         return body, status
 
-    @token_required
+    #@token_required
     def delete(self, user_id, rent_id):
 
         current_app.logger.info('DELETE: {}'.format(request.full_path))
@@ -142,7 +163,10 @@ class UserRent(Resource):
 
         server_id = body['server_id']
         s_conn = ServersConnector(serv_addr, 'SERVERS')
-        _ = s_conn.change_server_available(server_id, decrease=False)
+        try:
+            st, _ = s_conn.change_server_available(server_id, decrease=False)
+        except ServersNotAvailableExcecption as e:
+            res = background_change_server_available.delay(server_id, False)
 
         status, body = r_conn.delete_rent(rent_id)
 

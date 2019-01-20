@@ -2,6 +2,10 @@ from .service_connector import ServiceConnector
 from flask_restful import current_app
 
 
+class ServersNotAvailableExcecption(Exception):
+    pass
+
+
 class ServersConnector(ServiceConnector):
     """
     Class to connect with Servers Service
@@ -74,9 +78,12 @@ class ServersConnector(ServiceConnector):
         url = '/server/{}'.format(server_id)
 
         delta = -1 if decrease else 1
-        code, body = self.send_put_request(url, {'delta': delta}, with_token=True)
+        code, body = self.send_put_request(url, {'delta': delta}, with_token=False)
 
-        current_app.logger.debug("Response from servers: {}, {}".format(body, code))
+        if code == 503:
+            raise ServersNotAvailableExcecption('Servers service not available')
+
+        #current_app.logger.debug("Response from servers: {}, {}".format(body, code))
 
         if code == 404 or code == 400:
             return code, body
