@@ -20,3 +20,27 @@ class UserModel(db.Model):
     @staticmethod
     def verify_hash(password, hash):
         return sha256.verify(password, hash)
+
+
+class UserAppCode(db.Model):
+
+    __tablename__ = 'codes'
+
+    code = db.Column(db.Integer, primary_key=True)
+    app_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+
+    @staticmethod
+    def find(user_id, app_id):
+        return UserAppCode.query.filter_by(app_id=app_id, user_id=user_id).first()
+
+    @staticmethod
+    def update_code(user_id, app_id, code):
+        record = UserAppCode.find(user_id, app_id)
+        record.code = code
+        db.session.commit()
+
+    @staticmethod
+    def create_code_record(code, app_id, user_id):
+        db.session.add(UserAppCode(code=code, app_id=app_id, user_id=user_id))
+        db.session.commit()

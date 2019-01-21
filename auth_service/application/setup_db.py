@@ -1,5 +1,5 @@
 from application import db
-from application.models.models import UserModel
+from application.models.models import UserModel, UserAppCode
 
 
 def setup_auth_db():
@@ -18,3 +18,4 @@ def setup_auth_db():
 def clear_auth_db():
     engine = db.engine
     UserModel.__table__.drop(engine)
+    UserAppCode.__table__.drop(engine)

@@ -1,9 +1,10 @@
 from flask_restful import Resource, reqparse
 import jwt
-from application.models.models import UserModel
+from application.models.models import UserModel, UserAppCode
 from datetime import datetime, timedelta
+from random import randint
 
-from flask import current_app
+from flask import current_app, request
 
 
 class UserLogin(Resource):
@@ -29,7 +30,7 @@ class UserLogin(Resource):
             access_token = jwt.encode({'sub': current_user.id,
                                        'iat': datetime.utcnow(),
                                        'exp': datetime.utcnow() +
-                                              timedelta(minutes=30)},
+                                              timedelta(minutes=1)},
                                       current_app.config['JWT_ACCESS_SECRET'])
 
             refresh_token = jwt.encode({'sub': current_user.id},
@@ -64,14 +65,14 @@ class TokenRefresh(Resource):
             access_token = jwt.encode({'sub': id,
                                        'iat': datetime.utcnow(),
                                        'exp': datetime.utcnow() +
-                                              timedelta(minutes=30)},
+                                              timedelta(minutes=1)},
                                       current_app.config['JWT_ACCESS_SECRET'])
 
             return {'message': 'OK', 'access_token': access_token.decode()}, 200
 
         except (jwt.InvalidTokenError, Exception):
             current_app.logger.error('Invalid refresh token')
-            return {'message': 'Invalid access token'}, 401
+            return {'message': 'Invalid refresh token'}, 401
 
 
 class TokenCheck(Resource):
@@ -98,3 +99,43 @@ class TokenCheck(Resource):
         except (jwt.InvalidTokenError, Exception):
             current_app.logger.error('Invalid  token')
             return {'message': 'Invalid access token', 'expired': False}, 401
+
+
+class AppCode(Resource):
+
+    def get(self):
+
+        client_id = request.args['client_id']
+        login = request.args['login']
+        password = request.args['password']
+
+        current_user = UserModel.find_by_login(login)
+
+        if UserModel.verify_hash(password, current_user.password):
+            client_info = current_app.config['APPS'].get(client_id, None)
+            if not client_info:
+                return {'message': 'application is not registred'}, 404
+
+            code = randint(100, 100000)
+            client_info[1] = code
+
+            record = UserAppCode.find(current_user.id, client_id)
+            if not record:
+                UserAppCode.create_code_record(code=code,
+                                               user_id=current_user.id,
+                                               app_id=client_id)
+            else:
+                UserAppCode.update_code(current_user.id, client_id, code)
+            return {'message': 'OK', 'code': code}, 200
+        else:
+            return {'message': 'wrong credentials'}, 401
+
+
+class AppToken(Resource):
+
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        super(AppToken, self).__init__()
+
+    def get(self):
+        args = self.parser.parse_args()

@@ -29,3 +29,22 @@ class AuthConnector(ServiceConnector):
         current_app.logger.debug("Response from auth: {}, {}".format(body, code))
 
         return code, body
+
+    def get_auth_code(self, client_id, login, password):
+
+        code, body = self.send_get_request('/auth/code?client_id={}&login={}&password={}'.
+                                           format(client_id, login, password))
+        current_app.logger.debug("Response from auth: {}, {}".format(body, code))
+
+        return code, body
+
+    def get_token_oauth2(self, client_id, client_secret, code):
+
+        code, body = self.send_get_request(
+            '/auth/token?сlient_id={}&client_secret={}&code={}'.
+            format(client_id, client_secret, code))
+
+        current_app.logger.debug("Response from auth: {}, {}".format(body, code))
+
+        return code, body
+
