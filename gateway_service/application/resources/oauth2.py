@@ -43,16 +43,16 @@ class AppLogin(Resource):
 class AppToken(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('client_id', required=True, location='json',
+        self.parser.add_argument('client_id', required=True,
                                      help='This field cannot be blank')
-        self.parser.add_argument('client_secret', required=True, location='json',
+        self.parser.add_argument('client_secret', required=True,
                                      help='This field cannot be blank')
-        self.parser.add_argument('code', required=True, location='json',
+        self.parser.add_argument('code', required=True,
                                      help='This field cannot be blank')
 
         super(AppToken, self).__init__()
 
-    def post(self):
+    def get(self):
 
         current_app.logger.info("POST: {}".format(request.full_path))
 
@@ -69,7 +69,7 @@ class AppToken(Resource):
 class AppTokenRefresh(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('refresh_token', required=True, location='json',
+        self.parser.add_argument('refresh_token', required=True,
                                      help='This field cannot be blank')
 
         super(AppTokenRefresh, self).__init__()

@@ -35,6 +35,10 @@ class UserAppCode(db.Model):
         return UserAppCode.query.filter_by(app_id=app_id, user_id=user_id).first()
 
     @staticmethod
+    def find_by_code(code):
+        return UserAppCode.query.filter_by(code=code).first()
+
+    @staticmethod
     def update_code(user_id, app_id, code):
         record = UserAppCode.find(user_id, app_id)
         record.code = code

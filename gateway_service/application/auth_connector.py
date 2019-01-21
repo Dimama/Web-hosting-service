@@ -41,7 +41,7 @@ class AuthConnector(ServiceConnector):
     def get_token_oauth2(self, client_id, client_secret, code):
 
         code, body = self.send_get_request(
-            '/auth/token?сlient_id={}&client_secret={}&code={}'.
+            '/auth/token?client_id={}&client_secret={}&code={}'.
             format(client_id, client_secret, code))
 
         current_app.logger.debug("Response from auth: {}, {}".format(body, code))

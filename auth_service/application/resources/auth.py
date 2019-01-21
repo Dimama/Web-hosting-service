@@ -59,6 +59,29 @@ class TokenRefresh(Resource):
         refresh_token = args['refresh_token']
 
         try:
+            data = jwt.decode(refresh_token, verify=False)
+        except (jwt.InvalidTokenError, Exception):
+            return {'message': 'Invalid refresh token'}, 401
+
+        app_id = data.get('app', None)
+        if app_id:
+            try:
+                secret = current_app.config['APPS'][app_id][0]
+                data = jwt.decode(refresh_token, secret + '_refresh')
+                user_id = data['sub']
+                access_token = jwt.encode({'sub': user_id,
+                                         'app': app_id,
+                                         'iat': datetime.utcnow(),
+                                         'exp': datetime.utcnow() +
+                                                timedelta(minutes=1)},
+                                        secret)
+
+                return {'message': 'OK', 'access_token': access_token.decode()}, 200
+            except (jwt.InvalidTokenError, Exception):
+                current_app.logger.error('Invalid refresh token')
+                return {'message': 'Invalid refresh token'}, 401
+
+        try:
             data = jwt.decode(refresh_token, current_app.config['JWT_REFRESH_SECRET'])
             id = data['sub']
 
@@ -133,9 +156,36 @@ class AppCode(Resource):
 
 class AppToken(Resource):
 
-    def __init__(self):
-        self.parser = reqparse.RequestParser()
-        super(AppToken, self).__init__()
-
     def get(self):
-        args = self.parser.parse_args()
+
+        client_id = request.args['client_id']
+        secret = request.args['client_secret']
+        code = request.args['code']
+
+        client_info = current_app.config['APPS'].get(client_id, None)
+        if not client_info:
+            return {'message': 'application is not registred'}, 404
+
+        if client_info[0] != secret:
+            return {'message': 'Incorrect secret'}, 401
+
+        record = UserAppCode.find_by_code(code)
+        if not record:
+            return {'message': 'App unauthorized'}, 401
+
+        access_token = jwt.encode({'sub': record.user_id,
+                                   'app': client_id,
+                                   'iat': datetime.utcnow(),
+                                   'exp': datetime.utcnow() +
+                                          timedelta(minutes=1)},
+                                  client_info[0])
+
+        refresh_token = jwt.encode({'sub': record.user_id, 'app': client_id},
+                                   client_info[0]+'_refresh')
+
+        return {
+                   'message': 'OK',
+                   'access_token': access_token.decode(),
+                   'refresh_token': refresh_token.decode()
+               }, 200
+
