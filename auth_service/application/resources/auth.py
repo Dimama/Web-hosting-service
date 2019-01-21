@@ -113,7 +113,19 @@ class TokenCheck(Resource):
         token = args['token']
 
         try:
-            data = jwt.decode(token, current_app.config['JWT_ACCESS_SECRET'])
+            data = jwt.decode(token, verify=False)
+        except (jwt.InvalidTokenError, Exception):
+            return {'message': 'Invalid refresh token'}, 401
+
+        app_id = data.get('app', None)
+
+        if app_id:
+            secret = current_app.config['APPS'][app_id][0]
+        else:
+            secret = current_app.config['JWT_ACCESS_SECRET']
+
+        try:
+            data = jwt.decode(token, secret)
             return {'message': 'OK', 'user_id': data['sub']}, 200
 
         except jwt.ExpiredSignatureError:
