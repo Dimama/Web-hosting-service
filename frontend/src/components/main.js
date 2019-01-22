@@ -2,17 +2,26 @@
 import React, { Component } from 'react';
 import '../App.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+
 import ServersTable from './servers_table'
 import RentTable from './rent_table'
 import RentForm from './rent_form'
 import DeleteRentForm from './delete_rent_form'
+import LoginForm from './login_form'
+import OAuth2Form from './ouath2_form'
+
 import API_URL from '../const'
+
+import jwt_decode from '../../node_modules/jwt-decode'
+
 import ubuntu_logo from '../logo/ubuntu.png';
 import fedora_logo from '../logo/fedora.png';
 import centos_logo from '../logo/centos.png';
 import '../../node_modules/react-bootstrap-table/css/react-bootstrap-table.css'
 import "react-tabs/style/react-tabs.css";
+import Oauth2Form from './ouath2_form';
 
+import { BrowserRouter as Router, Route} from "react-router-dom";
 
 // Main component of application
 class MainComponent extends Component {
@@ -25,17 +34,27 @@ class MainComponent extends Component {
             server_id: '',
             rent_id: '',
             duration: '',
-            user_id: 1
+            login: '',
+            password: '',
         }
+        
+
+        localStorage.setItem('access_token', '');
+        localStorage.setItem('refresh_token', '');
 
         this.handleRentClick = this.handleRentClick.bind(this)
         this.handleDeleteClick = this.handleDeleteClick.bind(this)
+        this.handleLoginClick = this.handleLoginClick.bind(this)
+        this.handleLogoutClick = this.handleLogoutClick.bind(this)
+        this.handleOauth2LoginClick = this.handleOauth2LoginClick.bind(this)
     }
 
 
     handleChangeServerId = e => this.setState({server_id: e.target.value});
     handleChangeRentId = e => this.setState({rent_id: e.target.value});
     handleChangeDuration = e => this.setState({duration: e.target.value});
+    handleChangeLogin = e => this.setState({login: e.target.value});
+    handleChangePassword = e => this.setState({password: e.target.value});
 
     validate_rent_input(server_id, duration) {
         return ((server_id.match(/^\d+$/))
@@ -46,6 +65,86 @@ class MainComponent extends Component {
 
     validate_delete_input(rent_id) {
         return ((rent_id.match(/^\d+$/)) && (parseInt(rent_id) !== 0))
+    }
+
+    get_user_id(){
+        return jwt_decode(localStorage.getItem('access_token'))['sub']
+    }
+
+    parse_query_params(query) {
+        const queryArray = query.split('?')[1].split('&');
+        let queryParams = {};
+        for (let i = 0; i < queryArray.length; i++) {
+          const [key, val] = queryArray[i].split('=');
+          queryParams[key] = val ? val : true;
+        }
+        return queryParams;
+    }
+
+    is_valid_dict(dict) {
+        return ((dict.client_id) &&
+                (dict.redirect_uri) &&
+                (dict.response_type))
+    }
+    
+    invalid_url() {
+        return (
+            <div>
+                <h3>Invalid url</h3>
+            </div>
+        )
+    }
+
+    save_query_params(client_id, redirect_uri, response_type) {
+        localStorage.setItem('client_id', client_id) 
+        localStorage.setItem('redirect_uri', redirect_uri)
+        localStorage.setItem('response_type', response_type)
+    }
+
+    async handleLoginClick() {
+        var request_data = {
+            method: 'POST',
+            body: JSON.stringify({
+                login: this.state.login,
+                password: this.state.password}),
+            headers: { 'Content-Type': 'application/json' }
+        }
+
+        var response = await fetch(API_URL + 'login', request_data);
+        var body = await response.json();
+        
+        this.setState({login: '', password: ''})
+        if (response.status === 200) {
+            localStorage.setItem('access_token', body.access_token)
+            localStorage.setItem('refresh_token', body.refresh_token)
+            this.setState({isLoggedIn: true});
+            await this.updateUserRents();
+        } else {
+            alert('Error: ' +  body.message);
+        }
+    }
+
+    async handleLogoutClick(){
+        localStorage.setItem('access_token', '')
+        localStorage.setItem('refresh_token', '')
+        this.setState({isLoggedIn: false});
+    }
+
+    async refresh() {
+        var request_data = {
+            method: 'POST',
+            body: JSON.stringify({refresh_token: localStorage.getItem('refresh_token'),}),
+            headers: { 'Content-Type': 'application/json' }
+        }
+
+        var response = await fetch(API_URL + 'refresh', request_data);
+        var body = await response.json();
+        if (response.status === 200) {
+            localStorage.setItem('access_token', body.access_token)
+        } else {
+            alert('Server Error. You need to relogin');
+        }
+
     }
 
     async getServerInfo(server_id) {
@@ -79,10 +178,22 @@ class MainComponent extends Component {
         }
     }
 
-    async getUserRents(user_id) {
-        var response = await fetch(API_URL + 'user/' + user_id + '/rent', {method: 'GET'});
+    async getUserRents() {
+
+        var user_id = this.get_user_id();
+        var request_data = {
+            method: 'GET',
+            headers: { 'Authorization':
+             'Bearer ' + localStorage.getItem('access_token')}
+        }
+        var response = await fetch(API_URL + 'user/' + user_id + '/rent', request_data);
         var body = await response.json();
-        if (response.status === 200) {
+
+        if(response.status === 401) {
+            this.refresh();
+            console.log("Token expired")
+            await this.getUserRents();
+        } else if (response.status === 200) {
             return body['user rents']; 
         } else {
             console.log('Error: ' + body.message)
@@ -93,9 +204,19 @@ class MainComponent extends Component {
     async handleDeleteClick() {
         if (this.validate_delete_input(this.state.rent_id)) {
 
-            var response = await fetch(API_URL + 'user/' + this.state.user_id +
-                                     '/rent/' + this.state.rent_id, {method: 'DELETE'});
-            if (response.status === 400) {
+            var user_id = this.get_user_id();
+            var request_data = {
+                method: 'DELETE',
+                headers: { 'Authorization':
+                 'Bearer ' + localStorage.getItem('access_token')}
+            }
+            var response = await fetch(API_URL + 'user/' + user_id +
+                                     '/rent/' + this.state.rent_id, request_data);
+
+            if(response.status === 401) {
+                this.refresh();
+                alert("Error during request. Repeat please.")
+            } else if (response.status === 400) {
                 alert("Error: bad request");
             } else if (response.status === 404) {
                 var body = await response.json()
@@ -118,18 +239,27 @@ class MainComponent extends Component {
                 body: JSON.stringify({
                     duration: this.state.duration,
                     server_id: this.state.server_id}),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json',
+                            'Authorization':
+                            'Bearer ' + localStorage.getItem('access_token') }
             }
-
-            var response = await fetch(API_URL + 'user/' + this.state.user_id + '/rent',
+            
+            var user_id = this.get_user_id();
+            var response = await fetch(API_URL + 'user/' + user_id + '/rent',
                  request_data);
             var body = await response.json()
-            if (response.status === 400) {
+
+            if(response.status === 401) {
+                this.refresh();
+                alert("Error during request. Repeat please.")
+            } else if (response.status === 400) {
                 alert("Error: bad request");
             } else if (response.status === 404) {
                 alert("Error: " + body.message);
             } else if (response.status === 422) {
                 alert("Warning: " + body.message);
+            } else if (response.status >= 500) {
+                alert("Server Error: " + body.message)
             } else { // created
                 alert("Successfull rent!")
                 await this.updateUserRents();
@@ -142,8 +272,39 @@ class MainComponent extends Component {
         
       }
     
+    async handleOauth2LoginClick() {
+
+        if ((this.state.login === '') || (this.state.password === '')) {
+            alert('Fields can not be blank');
+            return;
+        }
+        
+        var request_data = {
+            method: 'POST',
+            body: JSON.stringify({
+                client_id: localStorage.getItem('client_id'),
+                redirect_uri: localStorage.getItem('redirect_uri'),
+                response_type: localStorage.getItem('response_type'),
+                login: this.state.login,
+                password: this.state.password}),
+            headers: { 'Content-Type': 'application/json' }
+        }
+
+        var url = API_URL + 'oauth2/code'
+        this.setState({login: '', password: ''})
+
+        var response = await fetch(url, request_data);
+        
+        if (response.status === 400) {
+            alert('Error: Bad request');
+        } else {
+            var body = await response.json();
+            alert('Error:' + body.message);
+        }
+    }
+
     async updateUserRents() {
-        var user_rents = await this.getUserRents(this.state.user_id);
+        var user_rents = await this.getUserRents();
         if (user_rents !== []) {
             this.setState({
                 rents: user_rents
@@ -166,46 +327,102 @@ class MainComponent extends Component {
 
     async componentWillMount() {
         await this.updateServers();
-        await this.updateUserRents();
     }
 
     render() {
+        const isLoggedIn = this.state.isLoggedIn;
+        
         return(
-            <div className="App">
-                <div className="Basic" >
+            <Router>
+                <React.Fragment>
+                <Route path="/" exact render={() => <div className="App">
+                <div className="left">
+                    {isLoggedIn &&
+                        <button className="Button" onClick={this.handleLogoutClick}>
+                            Logout
+                        </button>
+                    }
+                    {!(isLoggedIn) &&
+                        <div>
+                            <LoginForm  isLoggedIn={isLoggedIn}
+                                        login={this.state.login}
+                                        password={this.state.password}
+                                        handleLogInClick={this.handleLoginClick}
+                                        onChangeLogin={this.handleChangeLogin}
+                                        onChangePassword={this.handleChangePassword}
+                            />
+                        </div>
+                    }
+                </div>
+
+                <div className="Basic">
                     <h1 className="Header">Web Hosting Service</h1>
                     <div>
                         <img src={ubuntu_logo} className="Logo"/>
                         <img src={fedora_logo} className="Logo"/>
                         <img src={centos_logo} className="Logo"/>
                     </div>
-                </div>
-                <div>
-                    <Tabs className="Basic">
+
+                    <Tabs>
                         <TabList className="Tabs">
                             <Tab>Rent server</Tab>
-                            <Tab>Your rents</Tab>
+                            {isLoggedIn &&
+                                <Tab>Your rents</Tab>
+                            }
                         </TabList>
                         <TabPanel>
                             <h2  className="Header">Available servers</h2>
                             <div>
                                 <ServersTable data={this.state.servers}/>
-                                <RentForm handleClick={this.handleRentClick}
-                                            server_id={this.state.server_id}
-                                            duration={this.state.duration}
-                                            onChangeDuration={this.handleChangeDuration}
-                                            onChangeServerId={this.handleChangeServerId}/>
+                                {isLoggedIn &&
+                                    <RentForm handleClick={this.handleRentClick}
+                                                server_id={this.state.server_id}
+                                                duration={this.state.duration}
+                                                onChangeDuration={this.handleChangeDuration}
+                                                onChangeServerId={this.handleChangeServerId}/>
+                                }
                             </div>
                         </TabPanel>
-                        <TabPanel className="Tab">
-                            <RentTable className="Table" data={this.state.rents}/>
-                            <DeleteRentForm handleClick={this.handleDeleteClick}
+                            {isLoggedIn &&
+                                <TabPanel className="Tab">
+                                    <RentTable className="Table" data={this.state.rents}/>
+                                    <DeleteRentForm handleClick={this.handleDeleteClick}
                                             rent_id={this.state.rent_id}
                                             onChangeRentId={this.handleChangeRentId}/>
-                        </TabPanel>
+                                </TabPanel>
+                            }    
                     </Tabs>
                 </div>
-            </div>
+            </div>}/>
+
+                <Route path="/auth2" render={(props) => {
+                        if (!props.location.search) {
+                            return this.invalid_url()
+                        } 
+
+                        var query_params = this.parse_query_params(props.location.search)
+                        
+                        if (!this.is_valid_dict(query_params)) {
+                            return this.invalid_url()
+                        }
+
+                        this.save_query_params(query_params.client_id,
+                                                query_params.redirect_uri,
+                                                query_params.response_type);
+                        
+                        return( <div>
+                        <div className="App">
+                            <Oauth2Form login={this.state.login}
+                                        password={this.state.password}
+                                        handleLogInClick={this.handleOauth2LoginClick}
+                                        onChangeLogin={this.handleChangeLogin}
+                                        onChangePassword={this.handleChangePassword}
+                            />
+                        </div>
+                    </div>)}}/>
+                </React.Fragment>
+            </Router>
+            
         );
     }
 }

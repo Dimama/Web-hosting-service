@@ -2,6 +2,7 @@ from flask_restful import Resource, reqparse
 from application.models.models import RentModel
 from flask import current_app, request
 from application.exceptions import NoRentException
+from flask_jwt_extended import jwt_required
 
 
 class Rent(Resource):
@@ -15,6 +16,7 @@ class Rent(Resource):
         self.post_reqparser.add_argument('duration', type=int, required=True,
                                          location='json', help="duration is not set")
 
+    #@jwt_required
     def post(self):
         """
         Method to process Post request to Rent service
@@ -32,6 +34,7 @@ class Rent(Resource):
 
         return {'message': 'rent with id: {} created'.format(rent_id)}, 201
 
+    #@jwt_required
     def get(self, user_id, rent_id=None):
         """
         Method to process get responses for rent resources
@@ -60,6 +63,7 @@ class Rent(Resource):
             else:
                 return rent.to_json(), 200
 
+    #@jwt_required
     def delete(self, rent_id):
         """
         Method to process DELETE request to Rent service

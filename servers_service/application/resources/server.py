@@ -2,6 +2,7 @@ from flask_restful import Resource, reqparse
 from application.models.models import ServerModel, ServerInfoModel
 from flask import current_app, request
 from application.exceptions import NoServerException
+from flask_jwt_extended import jwt_required
 
 
 class Server(Resource):
@@ -19,6 +20,7 @@ class Server(Resource):
 
         super(Server, self).__init__()
 
+    #@jwt_required
     def get(self, server_id=None):
         """
         Method to process get responses for server resources
@@ -55,6 +57,7 @@ class Server(Resource):
                 resp_body.update(res[1].to_json())
                 return {'server info': resp_body}, 200
 
+    #@jwt_required
     def put(self, server_id):
         """
         Method to process put responses for server resources

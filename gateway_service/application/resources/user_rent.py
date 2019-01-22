@@ -1,11 +1,54 @@
 from flask_restful import Resource, reqparse, current_app
 from flask import request
-from application.servers_connector import ServersConnector
+
+from application.servers_connector import ServersConnector, ServersNotAvailableExcecption
 from application.users_connector import UsersConnector
 from application.rent_connector import RentConnector
+from application.auth_connector import AuthConnector
+
 from application.const import SERVERS_SERVICE_ADDRESS as serv_addr
 from application.const import USERS_SERVICE_ADDRESS as users_addr
 from application.const import RENT_SERVICE_ADDRESS as rent_addr
+from application.const import AUTH_SERVICE_ADDRESS as auth_addr
+
+from celery import Celery, exceptions
+
+celery = Celery('tasks',
+                broker='redis://localhost:6379/0')
+
+
+@celery.task(bind=True)
+def background_change_server_available(self, server_id, is_decrease):
+    try:
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
+        _ = s_conn.change_server_available(server_id, decrease=is_decrease)
+    except ServersNotAvailableExcecption:
+        print("RETRY:" + str(self.request.retries + 1))
+        try:
+            self.retry(countdown=10, max_retries=10)
+        except exceptions.MaxRetriesExceededError:
+            print("Max retries reached. Sending report...")
+            # code for report about error
+
+
+def token_required(func):
+    def _check_token(*args, **kwargs):
+        auth_headers = request.headers.get('Authorization', '').split()
+
+        if len(auth_headers) != 2:
+            return {'message': 'Authorization header required.'}, 401
+        if 'Bearer' not in auth_headers:
+            return {'message': 'Authorization header format: Bearer `JWT`'}, 401
+
+        a_conn = AuthConnector(auth_addr)
+
+        status, body = a_conn.check_token(auth_headers[1])
+
+        if status == 401:
+            return body, status
+
+        return func(*args, **kwargs)
+    return _check_token
 
 
 class UserRent(Resource):
@@ -22,12 +65,11 @@ class UserRent(Resource):
 
         super(UserRent, self).__init__()
 
+    @token_required
     def get(self, user_id):
 
-        current_app.logger.info('GET: {}'.format(request.full_path))
-
-        s_conn = ServersConnector(serv_addr)
-        r_conn = RentConnector(rent_addr)
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
+        r_conn = RentConnector(rent_addr, 'RENT')
 
         status, body = r_conn.get_rents_for_user(user_id)
         if status == 404:
@@ -35,16 +77,26 @@ class UserRent(Resource):
 
         users_rents = []
         for rent in body['rents']:
-            _, s_body = s_conn.get_server_by_id(rent['server_id'])
-            resp_rent = s_body['server info']
+
+            resp_rent = {}
+            resp_rent.update(rent)
+
+            status, s_body = s_conn.get_server_by_id(rent['server_id'])
+            if status == 503:  # degrade functionality
+                current_app.logger.warning('Servers service not available')
+                resp_rent.update({'OS': '', 'RAM': '', 'CPU': '', 'Drive': ''})
+            else:
+                resp_rent.update(s_body['server info'])
+                resp_rent.pop('count')
+                resp_rent.pop('server_id')
+
             resp_rent.update(rent)
             resp_rent.pop('user_id')
-            resp_rent.pop('server_id')
-            resp_rent.pop('count')
             users_rents.append(resp_rent)
 
         return {'user rents': users_rents}, 200
 
+    @token_required
     def post(self, user_id):
 
         current_app.logger.info('POST: {} with body {}'.format(request.full_path,
@@ -55,8 +107,9 @@ class UserRent(Resource):
         server_id = args['server_id']
 
         # check server available
-        s_conn = ServersConnector(serv_addr)
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
         status, body = s_conn.get_server_available_count_and_price(server_id)
+
         if status == 404 or status == 422:  # server not found or no available
             return body, status
 
@@ -64,8 +117,9 @@ class UserRent(Resource):
         duration = args['duration']
 
         # check user bills
-        u_conn = UsersConnector(users_addr)
+        u_conn = UsersConnector(users_addr, 'USERS')
         status, body = u_conn.get_user_bill_money_count(user_id)
+
         if status == 404 or status == 422:  # user not found or no money on bill
             return body, status
 
@@ -77,32 +131,46 @@ class UserRent(Resource):
             return {'message': 'not enough money on bill'}, 422
 
         # update user bill
-        status, body = u_conn.decrease_user_bill(user_id, total_price)
+        status, body = u_conn.change_user_bill(user_id, total_price, decrease=True)
         if status == 400:
             return body, status
 
         # decrease server_available
         status, body = s_conn.change_server_available(server_id, decrease=True)
+        if status == 503:
+            _ = u_conn.change_user_bill(user_id, total_price, decrease=False)
+            return {'message': 'Can not create rent'}, 500
+
         if status == 400 or status == 404:
             return body, status
 
-        r_conn = RentConnector(rent_addr)
+        r_conn = RentConnector(rent_addr, 'RENT')
         status, body = r_conn.create_rent(user_id, server_id, duration)
+
+        # make rollback
+        if status == 503:
+            _ = s_conn.change_server_available(server_id, decrease=False)
+            _ = u_conn.change_user_bill(user_id, total_price, decrease=False)
+            return {'message': 'Can not create rent'}, 500
 
         return body, status
 
+    @token_required
     def delete(self, user_id, rent_id):
 
         current_app.logger.info('DELETE: {}'.format(request.full_path))
-        r_conn = RentConnector(rent_addr)
+        r_conn = RentConnector(rent_addr, 'RENT')
 
         status, body = r_conn.get_rent(user_id, rent_id)
         if status == 404:
             return body, status
 
         server_id = body['server_id']
-        s_conn = ServersConnector(serv_addr)
-        _ = s_conn.change_server_available(server_id, decrease=False)
+        s_conn = ServersConnector(serv_addr, 'SERVERS')
+        try:
+            st, _ = s_conn.change_server_available(server_id, decrease=False)
+        except ServersNotAvailableExcecption as e:
+            res = background_change_server_available.delay(server_id, False)
 
         status, body = r_conn.delete_rent(rent_id)
 

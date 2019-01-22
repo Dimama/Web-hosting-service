@@ -26,7 +26,7 @@ class Server(Resource):
 
         current_app.logger.info("GET: {}".format(request.full_path))
 
-        connector = ServersConnector(addr)
+        connector = ServersConnector(addr, 'SERVERS')
         if server_id is None:
             # response to servers_service to get all configurations
             args = self.reqparse.parse_args()

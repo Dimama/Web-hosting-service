@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from application.models.models import UserModel, UserBillsModel
 from flask import current_app, request
+from flask_jwt_extended import jwt_required
 
 
 class User(Resource):
@@ -10,6 +11,7 @@ class User(Resource):
                                      location='json', help="price is not set")
         super(User, self).__init__()
 
+    @jwt_required
     def get(self, user_id):
         """
         Method to process get responses for user resources
@@ -29,6 +31,7 @@ class User(Resource):
             resp_body.update(res[1].to_json())
             return {'user info': resp_body}, 200
 
+    @jwt_required
     def put(self, user_id):
         """
         Method to process put responses for user resources
@@ -40,7 +43,7 @@ class User(Resource):
         current_app.logger.info("PUT: {}".format(request.full_path))
 
         args = self.put_parser.parse_args()
-        updated_bill = UserBillsModel.decrease_user_bill(user_id, args['price'])
+        updated_bill = UserBillsModel.change_user_bill(user_id, args['price'])
 
         # may be check on 404 ?
 
