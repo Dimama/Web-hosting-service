@@ -145,6 +145,8 @@ class AppCode(Resource):
         password = request.args['password']
 
         current_user = UserModel.find_by_login(login)
+        if not current_user:
+            return {'message': 'wrong credentials'}, 401
 
         if UserModel.verify_hash(password, current_user.password):
             client_info = current_app.config['APPS'].get(client_id, None)

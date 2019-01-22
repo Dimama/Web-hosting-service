@@ -7,24 +7,23 @@ from flask import request
 class AppLogin(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('client_id', required=True,
+        self.parser.add_argument('client_id', required=True, location='json',
                                      help='This field cannot be blank')
-        self.parser.add_argument('redirect_uri', required=True,
+        self.parser.add_argument('redirect_uri', required=True, location='json',
                                      help='This field cannot be blank')
-        self.parser.add_argument('response_type', required=True,
+        self.parser.add_argument('response_type', required=True, location='json',
                                  help='This field cannot be blank')
-        self.parser.add_argument('login', required=True,
+        self.parser.add_argument('login', required=True, location='json',
                                  help='This field cannot be blank')
-        self.parser.add_argument('password', required=True,
+        self.parser.add_argument('password', required=True, location='json',
                                  help='This field cannot be blank')
         super(AppLogin, self).__init__()
 
-    def get(self):
+    def post(self):
 
-        current_app.logger.info("GET: {}".format(request.full_path))
+        current_app.logger.info("POST: {}".format(request.full_path))
 
         args = self.parser.parse_args()
-
         if args['response_type'] != 'code':
             return {'message': 'Only code auth allowed'}, 400
 
@@ -43,16 +42,16 @@ class AppLogin(Resource):
 class AppToken(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('client_id', required=True,
+        self.parser.add_argument('client_id', required=True, location='json',
                                      help='This field cannot be blank')
-        self.parser.add_argument('client_secret', required=True,
+        self.parser.add_argument('client_secret', required=True, location='json',
                                      help='This field cannot be blank')
-        self.parser.add_argument('code', required=True,
+        self.parser.add_argument('code', required=True, location='json',
                                      help='This field cannot be blank')
 
         super(AppToken, self).__init__()
 
-    def get(self):
+    def post(self):
 
         current_app.logger.info("POST: {}".format(request.full_path))
 

@@ -65,10 +65,8 @@ class UserRent(Resource):
 
         super(UserRent, self).__init__()
 
-    #@token_required
+    @token_required
     def get(self, user_id):
-
-        current_app.logger.info('GET: {}'.format(request.full_path))
 
         s_conn = ServersConnector(serv_addr, 'SERVERS')
         r_conn = RentConnector(rent_addr, 'RENT')
@@ -111,6 +109,7 @@ class UserRent(Resource):
         # check server available
         s_conn = ServersConnector(serv_addr, 'SERVERS')
         status, body = s_conn.get_server_available_count_and_price(server_id)
+
         if status == 404 or status == 422:  # server not found or no available
             return body, status
 
@@ -120,6 +119,7 @@ class UserRent(Resource):
         # check user bills
         u_conn = UsersConnector(users_addr, 'USERS')
         status, body = u_conn.get_user_bill_money_count(user_id)
+
         if status == 404 or status == 422:  # user not found or no money on bill
             return body, status
 
@@ -137,6 +137,10 @@ class UserRent(Resource):
 
         # decrease server_available
         status, body = s_conn.change_server_available(server_id, decrease=True)
+        if status == 503:
+            _ = u_conn.change_user_bill(user_id, total_price, decrease=False)
+            return {'message': 'Can not create rent'}, 500
+
         if status == 400 or status == 404:
             return body, status
 
@@ -151,7 +155,7 @@ class UserRent(Resource):
 
         return body, status
 
-    #@token_required
+    @token_required
     def delete(self, user_id, rent_id):
 
         current_app.logger.info('DELETE: {}'.format(request.full_path))

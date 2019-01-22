@@ -27,7 +27,6 @@ class ServiceConnector(object):
             current_app.config[self.service_name] = body['token']
         else:
             current_app.logger.error("Error of getting token from " + self.service_name)
-            # TODO: raise exception
 
     def _make_headers(self, with_token=False):
 
