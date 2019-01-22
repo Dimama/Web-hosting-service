@@ -1,10 +1,14 @@
 import React from 'react';
 
 
-class LoginForm extends React.Component {
+class Oauth2Form extends React.Component {
     render() {
         return (
             <div>
+                <div><h3>
+                        Input login and password and press 'OK' to allow application access to your data 
+                    </h3>
+                </div>
                 <div>
                     <input className="Input" type="text" name="login" placeholder="login"
                         value={this.props.login} onChange={this.props.onChangeLogin}/>
@@ -15,15 +19,12 @@ class LoginForm extends React.Component {
                 </div>
                 <div>
                     <button className="Button" onClick={this.props.handleLogInClick}>
-                        Login
+                        OK
                     </button>
-                </div>
-                <div>
-                    {this.props.button}
                 </div>
           </div>
       );
     }
   }
 
-export default LoginForm;
+export default Oauth2Form;

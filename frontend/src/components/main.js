@@ -8,6 +8,7 @@ import RentTable from './rent_table'
 import RentForm from './rent_form'
 import DeleteRentForm from './delete_rent_form'
 import LoginForm from './login_form'
+import OAuth2Form from './ouath2_form'
 
 import API_URL from '../const'
 
@@ -18,8 +19,9 @@ import fedora_logo from '../logo/fedora.png';
 import centos_logo from '../logo/centos.png';
 import '../../node_modules/react-bootstrap-table/css/react-bootstrap-table.css'
 import "react-tabs/style/react-tabs.css";
+import Oauth2Form from './ouath2_form';
 
-
+import { BrowserRouter as Router, Route} from "react-router-dom";
 
 // Main component of application
 class MainComponent extends Component {
@@ -32,11 +34,11 @@ class MainComponent extends Component {
             server_id: '',
             rent_id: '',
             duration: '',
-            isLoggedIn: false,
             login: '',
-            password: ''
+            password: '',
         }
         
+
         localStorage.setItem('access_token', '');
         localStorage.setItem('refresh_token', '');
 
@@ -44,6 +46,7 @@ class MainComponent extends Component {
         this.handleDeleteClick = this.handleDeleteClick.bind(this)
         this.handleLoginClick = this.handleLoginClick.bind(this)
         this.handleLogoutClick = this.handleLogoutClick.bind(this)
+        this.handleOauth2LoginClick = this.handleOauth2LoginClick.bind(this)
     }
 
 
@@ -68,6 +71,36 @@ class MainComponent extends Component {
         return jwt_decode(localStorage.getItem('access_token'))['sub']
     }
 
+    parse_query_params(query) {
+        const queryArray = query.split('?')[1].split('&');
+        let queryParams = {};
+        for (let i = 0; i < queryArray.length; i++) {
+          const [key, val] = queryArray[i].split('=');
+          queryParams[key] = val ? val : true;
+        }
+        return queryParams;
+    }
+
+    is_valid_dict(dict) {
+        return ((dict.client_id) &&
+                (dict.redirect_uri) &&
+                (dict.response_type))
+    }
+    
+    invalid_url() {
+        return (
+            <div>
+                <h3>Invalid url</h3>
+            </div>
+        )
+    }
+
+    save_query_params(client_id, redirect_uri, response_type) {
+        localStorage.setItem('client_id', client_id) 
+        localStorage.setItem('redirect_uri', redirect_uri)
+        localStorage.setItem('response_type', response_type)
+    }
+
     async handleLoginClick() {
         var request_data = {
             method: 'POST',
@@ -79,7 +112,8 @@ class MainComponent extends Component {
 
         var response = await fetch(API_URL + 'login', request_data);
         var body = await response.json();
-
+        
+        this.setState({login: '', password: ''})
         if (response.status === 200) {
             localStorage.setItem('access_token', body.access_token)
             localStorage.setItem('refresh_token', body.refresh_token)
@@ -91,7 +125,7 @@ class MainComponent extends Component {
     }
 
     async handleLogoutClick(){
-        localStorage.setItem('access_token', '') // remove item?
+        localStorage.setItem('access_token', '')
         localStorage.setItem('refresh_token', '')
         this.setState({isLoggedIn: false});
     }
@@ -238,6 +272,37 @@ class MainComponent extends Component {
         
       }
     
+    async handleOauth2LoginClick() {
+
+        if ((this.state.login === '') || (this.state.password === '')) {
+            alert('Fields can not be blank');
+            return;
+        }
+        
+        var request_data = {
+            method: 'POST',
+            body: JSON.stringify({
+                client_id: localStorage.getItem('client_id'),
+                redirect_uri: localStorage.getItem('redirect_uri'),
+                response_type: localStorage.getItem('response_type'),
+                login: this.state.login,
+                password: this.state.password}),
+            headers: { 'Content-Type': 'application/json' }
+        }
+
+        var url = API_URL + 'oauth2/code'
+        this.setState({login: '', password: ''})
+
+        var response = await fetch(url, request_data);
+        
+        if (response.status === 400) {
+            alert('Error: Bad request');
+        } else {
+            var body = await response.json();
+            alert('Error:' + body.message);
+        }
+    }
+
     async updateUserRents() {
         var user_rents = await this.getUserRents();
         if (user_rents !== []) {
@@ -266,9 +331,11 @@ class MainComponent extends Component {
 
     render() {
         const isLoggedIn = this.state.isLoggedIn;
-
+        
         return(
-            <div className="App">
+            <Router>
+                <React.Fragment>
+                <Route path="/" exact render={() => <div className="App">
                 <div className="left">
                     {isLoggedIn &&
                         <button className="Button" onClick={this.handleLogoutClick}>
@@ -286,7 +353,6 @@ class MainComponent extends Component {
                             />
                         </div>
                     }
-
                 </div>
 
                 <div className="Basic">
@@ -327,7 +393,36 @@ class MainComponent extends Component {
                             }    
                     </Tabs>
                 </div>
-            </div>
+            </div>}/>
+
+                <Route path="/auth2" render={(props) => {
+                        if (!props.location.search) {
+                            return this.invalid_url()
+                        } 
+
+                        var query_params = this.parse_query_params(props.location.search)
+                        
+                        if (!this.is_valid_dict(query_params)) {
+                            return this.invalid_url()
+                        }
+
+                        this.save_query_params(query_params.client_id,
+                                                query_params.redirect_uri,
+                                                query_params.response_type);
+                        
+                        return( <div>
+                        <div className="App">
+                            <Oauth2Form login={this.state.login}
+                                        password={this.state.password}
+                                        handleLogInClick={this.handleOauth2LoginClick}
+                                        onChangeLogin={this.handleChangeLogin}
+                                        onChangePassword={this.handleChangePassword}
+                            />
+                        </div>
+                    </div>)}}/>
+                </React.Fragment>
+            </Router>
+            
         );
     }
 }
